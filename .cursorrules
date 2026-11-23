@@ -1,0 +1,7 @@
+# Cursor Rules — PokéMundo Dex
+
+- Idioma de interfaz, comentarios y explicaciones: español.
+- Mantén el código modular, limpio y fácil de mantener; si el proyecto crece más allá de un solo HTML, separa estructura, estilos y lógica sin romper el funcionamiento local.
+- Nunca rompas la separación entre el sonido/grito del Pokémon (al tocar o abrir la ficha) y la síntesis de voz de la explicación.
+- Siempre incluye estados de carga, manejo de errores y respaldo local cuando se consulte PokéAPI o servicios externos.
+- Optimiza la experiencia táctil y visual para que sea cómoda de usar en tablet o móvil (pensando en uso infantil/familiar).

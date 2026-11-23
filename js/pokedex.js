@@ -409,7 +409,7 @@ export function openPokemon(id) {
   pokeStage.className = stageClass(poke.types);
   catchBtn.textContent = caught.has(poke.id) ? "Capturado ✓" : "Marcar capturado";
   modalBackdrop.classList.add("open");
-  playCryFor(poke);
+  stopAllAudio();
 
   ensureSpanishDescription(poke).then(() => {
     if (token !== modalToken) return;
@@ -545,26 +545,20 @@ export function initPokedex() {
     if (currentPoke) playCryFor(currentPoke);
   });
 
-  speakBtn.addEventListener("click", async () => {
+  speakBtn.addEventListener("click", () => {
     const poke = currentPoke;
     if (!poke) return;
-    const token = ++speakToken;
-    speakBtn.disabled = true;
-    speakBtn.textContent = "Cargando explicación…";
-    try {
-      await ensureSpanishDescription(poke);
+    speakToken += 1;
+    const token = speakToken;
+    refreshModal(poke);
+    speakSpanish(
+      explanationText(poke),
+      () => token === speakToken && currentPoke === poke && modalBackdrop.classList.contains("open")
+    );
+    ensureSpanishDescription(poke).then(() => {
       if (token !== speakToken || currentPoke !== poke) return;
       refreshModal(poke);
-      speakSpanish(
-        explanationText(poke),
-        () => currentPoke === poke && modalBackdrop.classList.contains("open")
-      );
-    } finally {
-      if (token === speakToken) {
-        speakBtn.disabled = false;
-        speakBtn.textContent = "Escuchar explicación";
-      }
-    }
+    });
   });
 
   catchBtn.addEventListener("click", () => {

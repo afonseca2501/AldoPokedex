@@ -1,10 +1,12 @@
 // Audio en dos caminos que no se mezclan:
-// playCry() solo reproduce el grito (archivo .ogg).
+// playCry() solo reproduce el grito, y la ficha lo llama al tocar el escenario.
 // speakSpanish() solo lee en voz alta un texto en español.
 
 let cryAudio = null;
 let cryToken = 0;
 let speakTimer = 0;
+let speakAttempt = 0;
+let activeUtterance = null;
 
 export function cryUrlList(id) {
   return [
@@ -66,22 +68,74 @@ export function playCry(poke) {
   tryUrl();
 }
 
-function spanishVoice() {
-  if (!("speechSynthesis" in window)) return null;
-  return window.speechSynthesis.getVoices().find((voice) => /^es(-|$)/i.test(voice.lang)) || null;
+function spanishVoices() {
+  if (!("speechSynthesis" in window)) return [];
+  return window.speechSynthesis.getVoices().filter((voice) => /^es([-_]|$)/i.test(voice.lang || ""));
+}
+
+function preferredSpanishVoice() {
+  const voices = spanishVoices();
+  return voices.find((voice) => voice.localService && !/\(.*\)/.test(voice.name))
+    || voices.find((voice) => voice.localService)
+    || voices[0]
+    || null;
+}
+
+function createUtterance(text, voice) {
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.volume = 1;
+  utter.rate = 1;
+  utter.pitch = 1;
+  if (voice) {
+    utter.voice = voice;
+    utter.lang = voice.lang || "es-ES";
+  } else {
+    utter.lang = "es-ES";
+  }
+  return utter;
 }
 
 export function speakSpanish(text, isStillCurrent = () => true) {
   if (!text || !("speechSynthesis" in window)) return;
   stopCry();
-  const utter = new SpeechSynthesisUtterance(text);
-  utter.lang = "es-ES";
-  const voice = spanishVoice();
-  if (voice) utter.voice = voice;
-  window.speechSynthesis.cancel();
   window.clearTimeout(speakTimer);
-  speakTimer = window.setTimeout(() => {
-    if (!isStillCurrent()) return;
-    window.speechSynthesis.speak(utter);
-  }, 50);
+  const synth = window.speechSynthesis;
+  const attemptId = ++speakAttempt;
+  const voice = preferredSpanishVoice();
+
+  const start = (chosenVoice, canRetry) => {
+    if (attemptId !== speakAttempt || !isStillCurrent()) return;
+    const utter = createUtterance(text, chosenVoice);
+    activeUtterance = utter;
+    let started = false;
+    utter.onstart = () => {
+      started = true;
+    };
+    utter.onerror = (event) => {
+      if (attemptId !== speakAttempt || started) return;
+      if (event.error === "interrupted" || event.error === "canceled") return;
+      if (!canRetry) return;
+      const fallback = spanishVoices().find((item) => item !== chosenVoice && !/\(.*\)/.test(item.name)) || null;
+      start(fallback, false);
+    };
+    synth.resume();
+    synth.speak(utter);
+    synth.resume();
+    speakTimer = window.setTimeout(() => {
+      if (attemptId !== speakAttempt || started || synth.speaking || synth.pending) return;
+      if (!isStillCurrent()) return;
+      synth.resume();
+      const retry = createUtterance(text, chosenVoice);
+      activeUtterance = retry;
+      synth.speak(retry);
+      synth.resume();
+    }, 180);
+  };
+
+  if (synth.speaking || synth.pending) {
+    synth.cancel();
+    speakTimer = window.setTimeout(() => start(voice, true), 80);
+    return;
+  }
+  start(voice, true);
 }
