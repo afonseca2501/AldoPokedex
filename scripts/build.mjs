@@ -1,5 +1,10 @@
 import { spawnSync } from "node:child_process";
+import { cpSync, existsSync, mkdirSync, rmSync } from "node:fs";
 import { TYPE_ORDER, getType, weaknessesOf } from "../js/types.js";
+
+const OUTPUT = "dist";
+const SITE_FILES = ["index.html", "css", "js", "image_aldo.webp"];
+const OPTIONAL_FILES = ["modal"];
 
 const files = [
   "js/types.js",
@@ -42,4 +47,18 @@ for (const [types, expected] of samples) {
   }
 }
 
+rmSync(OUTPUT, { recursive: true, force: true });
+mkdirSync(OUTPUT, { recursive: true });
+for (const entry of SITE_FILES) {
+  if (!existsSync(entry)) {
+    console.error(`Falta el archivo del sitio: ${entry}`);
+    process.exit(1);
+  }
+  cpSync(entry, `${OUTPUT}/${entry}`, { recursive: true });
+}
+for (const entry of OPTIONAL_FILES) {
+  if (existsSync(entry)) cpSync(entry, `${OUTPUT}/${entry}`, { recursive: true });
+}
+
 console.log(`Compilación lista: ${files.length} módulos y ${TYPE_ORDER.length} tipos con color e ícono.`);
+console.log(`Salida estática: ${OUTPUT}/`);
