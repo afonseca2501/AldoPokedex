@@ -1,6 +1,6 @@
 import { warmSpanishVoices } from "./audio.js";
-import { showMap, initMap } from "./map.js?v=4";
-import { initPokedex, openPokemon } from "./pokedex.js?v=4";
+import { showMap, initMap } from "./map.js?v=5";
+import { initPokedex, openPokemon } from "./pokedex.js?v=5";
 
 function activateView(viewName) {
   document.querySelectorAll(".tab-btn").forEach((tab) => {

@@ -1,5 +1,5 @@
 import { cryUrlList, playCry, speakSpanish, stopAllAudio } from "./audio.js";
-import { TYPE_ORDER, getType, paintTypeBadges, typeName } from "./types.js?v=4";
+import { TYPE_ORDER, getType, paintTypeBadges, typeName, weaknessesOf } from "./types.js?v=5";
 
 const CAUGHT_KEY = "pokemundo_caught";
 const PAGE_SIZE = 100;
@@ -209,6 +209,27 @@ function markType(element, types) {
 
 function fillBadges(container, types) {
   paintTypeBadges(container, types, true);
+}
+
+function showWeaknesses(types) {
+  const list = document.getElementById("weakTypes");
+  const none = document.getElementById("weakNone");
+  const known = (types || []).filter(Boolean);
+  if (!known.length) {
+    list.replaceChildren();
+    none.hidden = false;
+    none.textContent = "Cargando…";
+    return;
+  }
+  const weak = weaknessesOf(known);
+  if (!weak.length) {
+    list.replaceChildren();
+    none.hidden = false;
+    none.textContent = "¡Ninguno!";
+    return;
+  }
+  none.hidden = true;
+  paintTypeBadges(list, weak, true);
 }
 
 function setSprite(img, id) {
@@ -638,6 +659,7 @@ function refreshModal(poke) {
   document.getElementById("modalName").textContent = displayName(poke.name);
   document.getElementById("modalDesc").textContent = currentDesc(poke);
   fillBadges(document.getElementById("modalTypes"), poke.types);
+  showWeaknesses(poke.types);
   const reacting = pokeStage.classList.contains("react");
   pokeStage.className = `${stageClass(poke.types)}${reacting ? " react" : ""}`;
   const card = pokeGrid.querySelector(`.poke-card[data-id="${poke.id}"]`);
@@ -677,6 +699,7 @@ export function openPokemon(id) {
   document.getElementById("modalNum").textContent = formatId(poke.id);
   document.getElementById("modalName").textContent = displayName(poke.name);
   fillBadges(document.getElementById("modalTypes"), poke.types);
+  showWeaknesses(poke.types);
   document.getElementById("modalDesc").textContent = currentDesc(poke);
 
   const image = document.getElementById("modalImg");

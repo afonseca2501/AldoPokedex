@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PokéMundo Dex & Mapa</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="css/styles.css?v=5" />
+  <link rel="stylesheet" href="css/styles.css?v=6" />
   <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
@@ -98,6 +98,12 @@
       <div class="poke-num" id="modalNum">#000</div>
       <h2 id="modalName">Pokémon</h2>
       <div id="modalTypes"></div>
+
+      <section class="weak-block" aria-labelledby="weakLabel">
+        <p id="weakLabel" class="weak-label">Débil contra</p>
+        <div id="weakTypes" class="weak-types"></div>
+        <p id="weakNone" class="weak-none" hidden>¡Ninguno!</p>
+      </section>
 
       <div
         id="pokeStage"

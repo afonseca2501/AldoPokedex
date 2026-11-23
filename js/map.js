@@ -1,5 +1,5 @@
-import { escapeHtml, getCatalog, isCaught, onCaughtChange, onTypesChange, pokemonTypes, titleName } from "./pokedex.js?v=4";
-import { paintTypeBadges } from "./types.js?v=4";
+import { escapeHtml, getCatalog, isCaught, onCaughtChange, onTypesChange, pokemonTypes, titleName } from "./pokedex.js?v=5";
+import { paintTypeBadges } from "./types.js?v=5";
 
 const SIGHTINGS = [
   { lat: 43.65, lng: -79.38, place: "Toronto", country: "Canadá", code: "CA", pokeId: 133, name: "eevee" },
