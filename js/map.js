@@ -1,4 +1,4 @@
-import { escapeHtml, getCatalog, isCaught, onCaughtChange, onTypesChange, pokemonTypes, setStatus, titleName } from "./pokedex.js?v=6";
+import { escapeHtml, getCatalog, isCaught, onCaughtChange, onTypesChange, pokemonTypes, setStatus, titleName } from "./pokedex.js?v=7";
 import { paintTypeBadges } from "./types.js?v=5";
 
 const SIGHTINGS = [

@@ -7,6 +7,7 @@ const files = [
   "js/pokedex.js",
   "js/map.js",
   "js/main.js",
+  "js/welcome.js",
 ];
 
 for (const file of files) {

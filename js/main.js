@@ -1,6 +1,7 @@
 import { warmSpanishVoices } from "./audio.js";
-import { showMap, initMap } from "./map.js?v=6";
-import { initPokedex, openPokemon } from "./pokedex.js?v=6";
+import { showMap, initMap } from "./map.js?v=7";
+import { initPokedex, openPokemon } from "./pokedex.js?v=7";
+import { startWelcome } from "./welcome.js?v=7";
 
 const welcome = document.getElementById("welcome");
 
@@ -25,6 +26,7 @@ window.openPokemon = openPokemon;
 warmSpanishVoices();
 initPokedex();
 initMap();
+startWelcome();
 if (document.getElementById("mapView").classList.contains("active")) showMap();
 window.setTimeout(hideWelcome, 2200);
 

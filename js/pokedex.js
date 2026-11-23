@@ -72,13 +72,6 @@ const speakBtn = document.getElementById("speakBtn");
 const catchBtn = document.getElementById("catchBtn");
 const pokeStage = document.getElementById("pokeStage");
 
-function artworkUrl(id) {
-  return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`;
-}
-
-function spriteUrl(id) {
-  return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
-}
 
 function idFromUrl(url) {
   const match = String(url || "").match(/\/pokemon\/(\d+)\/?$/);
@@ -128,6 +121,26 @@ export function escapeHtml(value) {
 
 export function getCatalog() {
   return catalog;
+}
+
+export function artworkUrl(id) {
+  return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`;
+}
+
+export function spriteUrl(id) {
+  return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
+}
+
+const catalogListeners = new Set();
+
+export function onCatalogChange(listener) {
+  catalogListeners.add(listener);
+  listener(getCatalog(), totalExpected || catalog.length);
+}
+
+function notifyCatalog() {
+  const total = totalExpected || catalog.length;
+  catalogListeners.forEach((listener) => listener(getCatalog(), total));
 }
 
 function formatId(id) {
@@ -815,6 +828,7 @@ async function loadCatalog() {
     if (!count) throw new Error("Catálogo vacío");
     totalExpected = count;
     updateCaughtCounter();
+    notifyCatalog();
 
     const typePromise = loadTypes(signal);
     for (let offset = 0; offset < count; offset += PAGE_SIZE) {
@@ -828,6 +842,7 @@ async function loadCatalog() {
       if (!data.results?.length) break;
       data.results.forEach(upsertFromIndex);
       catalog = sortCatalog();
+      notifyCatalog();
       const loaded = Math.min(offset + data.results.length, count);
       setStatus("Buscando…");
       requestRender();
@@ -838,6 +853,7 @@ async function loadCatalog() {
     if (signal.aborted || loadController !== controller) return;
     applyTypes();
     catalog = sortCatalog();
+    notifyCatalog();
     requestRender();
     setStatus("");
   } catch (error) {
