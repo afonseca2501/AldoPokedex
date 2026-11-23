@@ -218,8 +218,58 @@ input:focus, select:focus, button:focus-visible {
 }
 .layer-select select {
   flex: none;
-  min-width: 170px;
+  min-width: 220px;
 }
+.radar-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  margin-bottom: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(249, 115, 22, 0.45);
+  background: linear-gradient(90deg, #0c4a6e, #1e3a8a);
+}
+.radar-banner[hidden] { display: none !important; }
+.radar-banner .sighting-country { margin-bottom: 0; flex: none; }
+.radar-banner .sighting-copy { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 180px; }
+.radar-banner .sighting-poke { margin-bottom: 0; }
+.radar-banner button { margin-left: auto; }
+.radar-banner .sighting-kicker { color: #fdba74; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; }
+.radar-banner .country-name,
+.radar-banner .sighting-poke { color: #f8fafc; }
+.radar-banner .flag-badge { background: rgba(255, 255, 255, 0.16); color: #fff7ed; }
+.sighting { min-width: 190px; color: #0f172a; text-align: left; }
+.sighting-country { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+.flag-emoji { font-size: 1.4rem; line-height: 1; }
+.flag-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.7rem;
+  padding: 2px 5px;
+  border-radius: 5px;
+  background: #e2e8f0;
+  color: #0f172a;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+}
+.country-name { font-weight: 800; }
+.sighting-place { color: #475569; font-size: 0.82rem; margin-bottom: 6px; }
+.sighting-poke { font-weight: 800; margin-bottom: 8px; }
+.sighting button,
+.radar-banner button {
+  border: none;
+  border-radius: 8px;
+  background: #f97316;
+  color: #0f172a;
+  font-weight: 800;
+  padding: 7px 10px;
+  cursor: pointer;
+}
+.leaflet-popup-content { margin: 12px 14px; }
 #map {
   height: 520px;
   min-height: 360px;

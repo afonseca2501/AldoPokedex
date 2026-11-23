@@ -1,64 +1,162 @@
 import { escapeHtml, getCatalog, titleName } from "./pokedex.js";
 
-const HABITATS = [
-  { lat: 9.1, lng: -79.5, label: "Selva Tropical (Panamá)", pokeId: 1 },
-  { lat: -3.4, lng: -62.2, label: "Amazonia (Brasil)", pokeId: 43 },
-  { lat: 0.5, lng: 25.2, label: "Selva del Congo", pokeId: 123 },
-  { lat: -18.9, lng: 47.5, label: "Selva de Madagascar", pokeId: 357 },
-  { lat: 19.4, lng: -155.3, label: "Zona Volcánica (Hawái)", pokeId: 4 },
-  { lat: 19.4, lng: -99.1, label: "Valle de México", pokeId: 66 },
-  { lat: -13.5, lng: -72.0, label: "Andes (Perú)", pokeId: 95 },
-  { lat: 27.9, lng: 86.9, label: "Himalaya (Nepal)", pokeId: 460 },
-  { lat: 46.5, lng: 8.0, label: "Alpes (Suiza)", pokeId: 361 },
-  { lat: 35.6, lng: 139.7, label: "Ciudad Eléctrica (Tokio)", pokeId: 25 },
-  { lat: -1.3, lng: 36.8, label: "Sabana (Kenia)", pokeId: 128 },
-  { lat: 24.0, lng: 25.0, label: "Desierto del Sahara", pokeId: 27 },
-  { lat: 43.0, lng: 103.0, label: "Desierto de Gobi", pokeId: 329 },
-  { lat: -18.2, lng: 147.7, label: "Gran Barrera de Coral", pokeId: 72 },
-  { lat: 64.1, lng: -21.9, label: "Costa de Islandia", pokeId: 131 },
-  { lat: 71.0, lng: 25.0, label: "Ártico Helado", pokeId: 713 },
-  { lat: -51.0, lng: -73.0, label: "Patagonia (Argentina)", pokeId: 221 },
-  { lat: 0.0, lng: -140.0, label: "Océano Pacífico Profundo", pokeId: 382 },
-  { lat: -41.3, lng: 174.8, label: "Islas de Nueva Zelanda", pokeId: 16 },
-  { lat: 36.8, lng: -119.4, label: "Sierra Nevada (California)", pokeId: 37 },
+const SIGHTINGS = [
+  { lat: 43.65, lng: -79.38, place: "Toronto", country: "Canadá", code: "CA", pokeId: 133, name: "eevee" },
+  { lat: 40.71, lng: -74.01, place: "Nueva York", country: "Estados Unidos", code: "US", pokeId: 52, name: "meowth" },
+  { lat: 19.90, lng: -155.58, place: "Hawái", country: "Estados Unidos", code: "US", pokeId: 4, name: "charmander" },
+  { lat: 36.78, lng: -119.42, place: "Sierra Nevada", country: "Estados Unidos", code: "US", pokeId: 37, name: "vulpix" },
+  { lat: 19.43, lng: -99.13, place: "Ciudad de México", country: "México", code: "MX", pokeId: 66, name: "machop" },
+  { lat: 14.63, lng: -90.51, place: "Ciudad de Guatemala", country: "Guatemala", code: "GT", pokeId: 56, name: "mankey" },
+  { lat: 9.93, lng: -84.08, place: "San José", country: "Costa Rica", code: "CR", pokeId: 152, name: "chikorita" },
+  { lat: 8.98, lng: -79.52, place: "Selva tropical", country: "Panamá", code: "PA", pokeId: 1, name: "bulbasaur" },
+  { lat: 23.11, lng: -82.37, place: "La Habana", country: "Cuba", code: "CU", pokeId: 54, name: "psyduck" },
+  { lat: 4.71, lng: -74.07, place: "Bogotá", country: "Colombia", code: "CO", pokeId: 43, name: "oddish" },
+  { lat: -0.74, lng: -90.32, place: "Galápagos", country: "Ecuador", code: "EC", pokeId: 129, name: "magikarp" },
+  { lat: -13.16, lng: -72.54, place: "Andes", country: "Perú", code: "PE", pokeId: 95, name: "onix" },
+  { lat: -16.50, lng: -68.15, place: "La Paz", country: "Bolivia", code: "BO", pokeId: 76, name: "golem" },
+  { lat: -3.47, lng: -62.22, place: "Amazonia", country: "Brasil", code: "BR", pokeId: 114, name: "tangela" },
+  { lat: -22.91, lng: -43.17, place: "Río de Janeiro", country: "Brasil", code: "BR", pokeId: 106, name: "hitmonlee" },
+  { lat: -34.60, lng: -58.38, place: "Buenos Aires", country: "Argentina", code: "AR", pokeId: 241, name: "miltank" },
+  { lat: -50.94, lng: -73.24, place: "Patagonia", country: "Argentina", code: "AR", pokeId: 221, name: "piloswine" },
+  { lat: -33.45, lng: -70.67, place: "Santiago", country: "Chile", code: "CL", pokeId: 138, name: "omanyte" },
+  { lat: -34.90, lng: -56.16, place: "Montevideo", country: "Uruguay", code: "UY", pokeId: 113, name: "chansey" },
+  { lat: 64.15, lng: -21.94, place: "Reikiavik", country: "Islandia", code: "IS", pokeId: 131, name: "lapras" },
+  { lat: 51.51, lng: -0.13, place: "Londres", country: "Reino Unido", code: "GB", pokeId: 83, name: "farfetchd" },
+  { lat: 53.35, lng: -6.26, place: "Dublín", country: "Irlanda", code: "IE", pokeId: 35, name: "clefairy" },
+  { lat: 48.86, lng: 2.35, place: "París", country: "Francia", code: "FR", pokeId: 132, name: "ditto" },
+  { lat: 40.42, lng: -3.70, place: "Madrid", country: "España", code: "ES", pokeId: 59, name: "arcanine" },
+  { lat: 38.72, lng: -9.14, place: "Lisboa", country: "Portugal", code: "PT", pokeId: 278, name: "wingull" },
+  { lat: 46.82, lng: 8.23, place: "Alpes", country: "Suiza", code: "CH", pokeId: 361, name: "snorunt" },
+  { lat: 41.90, lng: 12.50, place: "Roma", country: "Italia", code: "IT", pokeId: 108, name: "lickitung" },
+  { lat: 52.52, lng: 13.40, place: "Berlín", country: "Alemania", code: "DE", pokeId: 81, name: "magnemite" },
+  { lat: 52.37, lng: 4.90, place: "Ámsterdam", country: "Países Bajos", code: "NL", pokeId: 183, name: "marill" },
+  { lat: 71.01, lng: 25.47, place: "Ártico", country: "Noruega", code: "NO", pokeId: 713, name: "avalugg" },
+  { lat: 59.33, lng: 18.07, place: "Estocolmo", country: "Suecia", code: "SE", pokeId: 220, name: "swinub" },
+  { lat: 37.98, lng: 23.73, place: "Atenas", country: "Grecia", code: "GR", pokeId: 38, name: "ninetales" },
+  { lat: 50.06, lng: 19.94, place: "Cracovia", country: "Polonia", code: "PL", pokeId: 77, name: "ponyta" },
+  { lat: 31.63, lng: -7.99, place: "Marrakech", country: "Marruecos", code: "MA", pokeId: 27, name: "sandshrew" },
+  { lat: 30.04, lng: 31.24, place: "El Cairo", country: "Egipto", code: "EG", pokeId: 328, name: "trapinch" },
+  { lat: -1.29, lng: 36.82, place: "Nairobi", country: "Kenia", code: "KE", pokeId: 128, name: "tauros" },
+  { lat: 0.51, lng: 25.20, place: "Selva del Congo", country: "República Democrática del Congo", code: "CD", pokeId: 123, name: "scyther" },
+  { lat: -18.88, lng: 47.51, place: "Antananarivo", country: "Madagascar", code: "MG", pokeId: 357, name: "tropius" },
+  { lat: -33.92, lng: 18.42, place: "Ciudad del Cabo", country: "Sudáfrica", code: "ZA", pokeId: 335, name: "zangoose" },
+  { lat: -2.33, lng: 34.83, place: "Serengueti", country: "Tanzania", code: "TZ", pokeId: 243, name: "raikou" },
+  { lat: 6.52, lng: 3.38, place: "Lagos", country: "Nigeria", code: "NG", pokeId: 84, name: "doduo" },
+  { lat: 9.03, lng: 38.74, place: "Adís Abeba", country: "Etiopía", code: "ET", pokeId: 244, name: "entei" },
+  { lat: 41.01, lng: 28.98, place: "Estambul", country: "Turquía", code: "TR", pokeId: 58, name: "growlithe" },
+  { lat: 28.61, lng: 77.21, place: "Delhi", country: "India", code: "IN", pokeId: 103, name: "exeggutor" },
+  { lat: 27.99, lng: 86.93, place: "Himalaya", country: "Nepal", code: "NP", pokeId: 460, name: "abomasnow" },
+  { lat: 39.90, lng: 116.41, place: "Pekín", country: "China", code: "CN", pokeId: 149, name: "dragonite" },
+  { lat: 43.00, lng: 103.00, place: "Desierto de Gobi", country: "Mongolia", code: "MN", pokeId: 329, name: "vibrava" },
+  { lat: 35.68, lng: 139.69, place: "Tokio", country: "Japón", code: "JP", pokeId: 25, name: "pikachu" },
+  { lat: 37.57, lng: 126.98, place: "Seúl", country: "Corea del Sur", code: "KR", pokeId: 100, name: "voltorb" },
+  { lat: 13.76, lng: 100.50, place: "Bangkok", country: "Tailandia", code: "TH", pokeId: 70, name: "weepinbell" },
+  { lat: -6.21, lng: 106.85, place: "Yakarta", country: "Indonesia", code: "ID", pokeId: 279, name: "pelipper" },
+  { lat: 14.60, lng: 120.98, place: "Manila", country: "Filipinas", code: "PH", pokeId: 382, name: "kyogre" },
+  { lat: 21.03, lng: 105.85, place: "Hanói", country: "Vietnam", code: "VN", pokeId: 252, name: "treecko" },
+  { lat: 25.20, lng: 55.27, place: "Dubái", country: "Emiratos Árabes Unidos", code: "AE", pokeId: 324, name: "torkoal" },
+  { lat: -33.87, lng: 151.21, place: "Sídney", country: "Australia", code: "AU", pokeId: 115, name: "kangaskhan" },
+  { lat: -18.29, lng: 147.70, place: "Gran Barrera de Coral", country: "Australia", code: "AU", pokeId: 72, name: "tentacool" },
+  { lat: -41.29, lng: 174.78, place: "Wellington", country: "Nueva Zelanda", code: "NZ", pokeId: 16, name: "pidgey" },
+  { lat: -17.71, lng: 178.07, place: "Suva", country: "Fiyi", code: "FJ", pokeId: 73, name: "tentacruel" },
+  { lat: -6.31, lng: 143.96, place: "Tierras altas", country: "Papúa Nueva Guinea", code: "PG", pokeId: 286, name: "breloom" },
 ];
 
-const TILES = {
-  standard: {
-    url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-    options: { attribution: "&copy; OpenStreetMap", maxZoom: 19 },
-  },
-  satellite: {
-    url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-    options: { attribution: "Tiles &copy; Esri", maxZoom: 19 },
-  },
+const TILE_SETS = {
+  streets: [
+    {
+      url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",
+      options: { attribution: "Tiles &copy; Esri &copy; OpenStreetMap", maxZoom: 19 },
+    },
+    {
+      url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+      options: {
+        attribution: "&copy; OpenStreetMap",
+        subdomains: "abc",
+        maxZoom: 19,
+      },
+    },
+  ],
+  satellite: [
+    {
+      url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+      options: { attribution: "Tiles &copy; Esri", maxZoom: 19 },
+    },
+    {
+      url: "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+      options: { attribution: "Tiles &copy; Esri", maxZoom: 19 },
+    },
+  ],
 };
 
 let mapInstance = null;
 let activeTiles = null;
-let preferredLayer = "standard";
+let preferredLayer = "streets";
+let radarPokeId = null;
 
 const mapElement = document.getElementById("map");
 const layerSelect = document.getElementById("mapLayer");
 const statusText = document.getElementById("statusText");
+const radarBanner = document.getElementById("radarBanner");
 
-function habitatPopup(habitat) {
-  return `<b>${escapeHtml(habitat.label)}</b><br><button type="button" onclick="openPokemon(${habitat.pokeId})">Ver Pokémon</button>`;
+function flagEmoji(code) {
+  if (!/^[a-z]{2}$/i.test(code || "")) return "🌐";
+  const points = [...code.toUpperCase()].map((char) => 0x1F1E6 + char.charCodeAt(0) - 65);
+  return String.fromCodePoint(...points);
+}
+
+function countryMarkup(spot) {
+  const code = escapeHtml((spot.code || "").toUpperCase());
+  return `
+    <span class="flag-emoji" aria-hidden="true">${flagEmoji(spot.code)}</span>
+    <span class="flag-badge">${code || "—"}</span>
+    <span class="country-name">${escapeHtml(spot.country)}</span>
+  `;
+}
+
+function sightingMarkup(spot, pokemonName, buttonLabel) {
+  return `
+    <div class="sighting">
+      <div class="sighting-country">${countryMarkup(spot)}</div>
+      <div class="sighting-place">${escapeHtml(spot.place)}</div>
+      <div class="sighting-poke">${escapeHtml(pokemonName)}</div>
+      <button type="button" onclick="openPokemon(${Number(spot.pokeId)})">${escapeHtml(buttonLabel)}</button>
+    </div>
+  `;
+}
+
+function createTileLayer(sources, index = 0) {
+  const source = sources[Math.min(index, sources.length - 1)];
+  const layer = L.tileLayer(source.url, source.options);
+  let failures = 0;
+  layer.on("tileerror", () => {
+    failures += 1;
+    if (failures < 6 || index >= sources.length - 1 || activeTiles !== layer) return;
+    layer.off("tileerror");
+    if (mapInstance && mapInstance.hasLayer(layer)) mapInstance.removeLayer(layer);
+    activeTiles = createTileLayer(sources, index + 1);
+    activeTiles.addTo(mapInstance);
+    statusText.textContent = "Una capa del mapa falló. Se está usando el mapa de respaldo.";
+  });
+  return layer;
 }
 
 function applyLayer(name) {
-  if (!mapInstance || !TILES[name]) return;
-  preferredLayer = name;
+  const sources = TILE_SETS[name] || TILE_SETS.streets;
+  preferredLayer = TILE_SETS[name] ? name : "streets";
+  if (!mapInstance) return;
   if (activeTiles) mapInstance.removeLayer(activeTiles);
-  activeTiles = L.tileLayer(TILES[name].url, TILES[name].options);
+  activeTiles = createTileLayer(sources, 0);
   activeTiles.addTo(mapInstance);
 }
 
 function createMap() {
-  mapInstance = L.map(mapElement, { fadeAnimation: false }).setView([18, 0], 2);
+  mapInstance = L.map(mapElement, { fadeAnimation: false }).setView([18, 10], 2);
   applyLayer(preferredLayer);
-  HABITATS.forEach((habitat) => {
-    L.marker([habitat.lat, habitat.lng]).addTo(mapInstance).bindPopup(habitatPopup(habitat));
+  SIGHTINGS.forEach((spot) => {
+    L.marker([spot.lat, spot.lng])
+      .addTo(mapInstance)
+      .bindPopup(sightingMarkup(spot, titleName(spot.name), "Ver ficha"));
   });
   requestAnimationFrame(() => mapInstance.invalidateSize(false));
 }
@@ -89,29 +187,57 @@ export function showMap() {
   resizeMapWhenVisible();
 }
 
+function jitter(value) {
+  return Number((value + (Math.random() - 0.5) * 0.8).toFixed(2));
+}
+
+function showRadarBanner(spot, pokemonName) {
+  radarPokeId = spot.pokeId;
+  radarBanner.hidden = false;
+  const code = escapeHtml((spot.code || "").toUpperCase());
+  radarBanner.innerHTML = `
+    <div class="sighting-country">
+      <span class="flag-emoji" aria-hidden="true">${flagEmoji(spot.code)}</span>
+      <span class="flag-badge">${code || "—"}</span>
+    </div>
+    <div class="sighting-copy">
+      <span class="sighting-kicker">Radar salvaje</span>
+      <strong class="sighting-poke">¡${escapeHtml(pokemonName)} salvaje!</strong>
+      <span class="country-name">${escapeHtml(spot.country)} · ${escapeHtml(spot.place)}</span>
+    </div>
+    <button type="button" id="radarOpenBtn">Ver ficha</button>
+  `;
+  radarBanner.querySelector("#radarOpenBtn").addEventListener("click", () => {
+    if (radarPokeId) window.openPokemon(radarPokeId);
+  });
+}
+
 function launchRadar() {
   showMap();
   const catalog = getCatalog();
-  if (!mapInstance || !catalog.length) return;
+  if (!mapInstance || !catalog.length || !SIGHTINGS.length) return;
+  const spot = SIGHTINGS[Math.floor(Math.random() * SIGHTINGS.length)];
   const poke = catalog[Math.floor(Math.random() * catalog.length)];
-  const lat = Number((Math.random() * 110 - 50).toFixed(2));
-  const lng = Number((Math.random() * 320 - 160).toFixed(2));
-  mapInstance.setView([lat, lng], 4);
-  L.marker([lat, lng])
+  const sighting = {
+    ...spot,
+    lat: jitter(spot.lat),
+    lng: jitter(spot.lng),
+    pokeId: poke.id,
+  };
+  const pokemonName = titleName(poke.name);
+  mapInstance.setView([sighting.lat, sighting.lng], 4);
+  L.marker([sighting.lat, sighting.lng])
     .addTo(mapInstance)
-    .bindPopup(
-      `<b>¡${escapeHtml(titleName(poke.name))} salvaje!</b><br><button type="button" onclick="openPokemon(${poke.id})">Abrir ficha</button>`
-    )
+    .bindPopup(sightingMarkup(sighting, pokemonName, "Abrir ficha"), { autoClose: false })
     .openPopup();
+  showRadarBanner(sighting, pokemonName);
   requestAnimationFrame(() => mapInstance.invalidateSize(false));
 }
 
 export function initMap() {
-  preferredLayer = layerSelect.value || "standard";
-  layerSelect.addEventListener("change", () => {
-    preferredLayer = layerSelect.value;
-    if (mapInstance) applyLayer(preferredLayer);
-  });
+  preferredLayer = TILE_SETS[layerSelect.value] ? layerSelect.value : "streets";
+  layerSelect.value = preferredLayer;
+  layerSelect.addEventListener("change", () => applyLayer(layerSelect.value));
   document.getElementById("radarBtn").addEventListener("click", launchRadar);
   window.addEventListener("resize", () => {
     if (document.getElementById("mapView").classList.contains("active")) showMap();

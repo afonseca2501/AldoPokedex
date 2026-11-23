@@ -30,9 +30,10 @@ AldoPokedex/
 
 ## Mapa Mundial
 
-- Selector de capa: Mapa estándar (OpenStreetMap) o Satélite (Esri).
-- Hábitats en varios continentes y océanos. Cada marcador abre la ficha.
-- Radar Salvaje coloca un Pokémon al azar en el mapa.
+- Capas sin claves privadas: Calles con el mapa de calles de Esri y Satélite con Esri World Imagery. Si un servidor falla, Calles pasa a OpenStreetMap y Satélite al segundo servidor de Esri.
+- 59 avistamientos fijos repartidos por América, Europa, África, Asia y Oceanía.
+- Cada marcador muestra la bandera (emoji regional), el código del país como respaldo, el nombre del país y un botón para abrir la ficha. Abrir la ficha no reproduce el grito.
+- Radar Salvaje elige otro Pokémon y mueve un poco las coordenadas dentro de un país de la lista. El aviso superior y el popup repiten bandera, país y el botón de la ficha.
 
 ## Arrancar en local
 
@@ -51,5 +52,5 @@ Abre http://127.0.0.1:8765/
 2. Abre un Pokémon desde la lista: la ficha aparece en silencio. Toca la imagen y entonces suena el grito. «Escuchar explicación» solo lee en español.
 3. Confirma el encabezado azul, el texto «¡Bienvenido, Aldo!» y la barra de capturados en naranja.
 4. Marca capturado y recarga: la barra y la marca siguen ahí.
-5. En Mapa Mundial cambia entre Satélite y Mapa estándar, abre un hábitat y pulsa Radar Salvaje.
+5. En Mapa Mundial cambia entre Calles y Satélite, abre un marcador y comprueba bandera, país y «Ver ficha» (sin grito). Pulsa Radar Salvaje y revisa el aviso superior.
 6. Vuelve a Pokédex y regresa al mapa: el mapa ocupa todo el recuadro.

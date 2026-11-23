@@ -345,6 +345,7 @@ async function fetchSpanishDescription(poke) {
     const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${poke.id}/`);
     if (response.ok) {
       const data = await response.json();
+      if (data.name) poke.name = data.name;
       const cries = [data.cries?.latest, data.cries?.legacy].filter(Boolean);
       if (cries.length) poke.cryUrls = cries;
       const types = (data.types || []).map((entry) => entry.type?.name).filter(Boolean);
@@ -384,16 +385,42 @@ function ensureSpanishDescription(poke) {
 
 function refreshModal(poke) {
   if (!modalBackdrop.classList.contains("open") || !currentPoke || currentPoke.id !== poke.id) return;
+  document.getElementById("modalNum").textContent = formatId(poke.id);
+  document.getElementById("modalName").textContent = displayName(poke.name);
   document.getElementById("modalDesc").textContent = currentDesc(poke);
   fillBadges(document.getElementById("modalTypes"), poke.types);
   const reacting = pokeStage.classList.contains("react");
   pokeStage.className = `${stageClass(poke.types)}${reacting ? " react" : ""}`;
-  const card = pokeGrid.querySelector(`.poke-card[data-id="${poke.id}"] .poke-types`);
-  if (card) fillBadges(card, poke.types);
+  const card = pokeGrid.querySelector(`.poke-card[data-id="${poke.id}"]`);
+  if (!card) return;
+  const types = card.querySelector(".poke-types");
+  const name = card.querySelector(".poke-name");
+  if (types) fillBadges(types, poke.types);
+  if (name) name.textContent = displayName(poke.name);
+}
+
+function ensureEntry(id) {
+  const numeric = Number(id);
+  if (!Number.isInteger(numeric) || numeric <= 0) return null;
+  const existing = byId.get(numeric);
+  if (existing) return existing;
+  const poke = {
+    id: numeric,
+    name: `pokémon ${numeric}`,
+    types: [],
+    desc: "",
+    descLang: "",
+    curated: false,
+    speciesLoaded: false,
+    cryUrls: cryUrlList(numeric),
+  };
+  byId.set(numeric, poke);
+  catalog = sortCatalog();
+  return poke;
 }
 
 export function openPokemon(id) {
-  const poke = byId.get(Number(id));
+  const poke = ensureEntry(id);
   if (!poke) return;
   currentPoke = poke;
   const token = ++modalToken;
