@@ -5,18 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PokéMundo Dex & Mapa</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="css/styles.css?v=8" />
+  <link rel="stylesheet" href="css/styles.css?v=9" />
   <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body class="hello-open">
   <header>
     <p class="welcome" id="welcome">¡Hola, Aldo!</p>
     <div class="tabs" role="tablist">
-      <button class="tab-btn active" type="button" data-view="mapView" role="tab" aria-selected="true">
+      <button class="tab-btn" type="button" data-view="mapView" role="tab" aria-selected="false">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M4 5.5 9 4l6 2 5-1.5V18l-5 1.5-6-2-4 1.5V5.5zm5 .8v9.4l6 2V8.3l-6-2z"/></svg>
         Mapa
       </button>
-      <button class="tab-btn" type="button" data-view="dexView" role="tab" aria-selected="false">
+      <button class="tab-btn active" type="button" data-view="dexView" role="tab" aria-selected="true">
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.2" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M4 12h16" stroke="currentColor" stroke-width="2.2"/><circle cx="12" cy="12" r="2.4" fill="currentColor"/></svg>
         Pokédex
       </button>
@@ -46,7 +46,7 @@
   </div>
 
   <main>
-    <section id="dexView" class="view">
+    <section id="dexView" class="view active">
       <div class="controls">
         <input id="searchInput" type="search" placeholder="Buscar por nombre o número (ej. pikachu, 25)…" autocomplete="off" />
         <select id="typeFilter" aria-label="Filtrar por tipo">
@@ -74,7 +74,7 @@
       <div id="pokeGrid" class="grid"></div>
     </section>
 
-    <section id="mapView" class="view active">
+    <section id="mapView" class="view">
       <div class="map-toolbar">
         <div>
           <strong>Explorador Mundial</strong> — Toca un hábitat o activa el radar salvaje.
