@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PokéMundo Dex & Mapa</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="css/styles.css" />
   <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
@@ -73,7 +73,16 @@
         <div>
           <strong>Explorador Mundial</strong> — Toca un hábitat o activa el radar salvaje.
         </div>
-        <button class="btn btn-catch" id="radarBtn" type="button">Radar Salvaje</button>
+        <div class="map-actions">
+          <label class="layer-select">
+            Capa
+            <select id="mapLayer" aria-label="Capa del mapa">
+              <option value="standard">Mapa estándar</option>
+              <option value="satellite">Satélite</option>
+            </select>
+          </label>
+          <button class="btn btn-catch" id="radarBtn" type="button">Radar Salvaje</button>
+        </div>
       </div>
       <div id="map"></div>
     </section>
@@ -106,6 +115,6 @@
     </div>
   </div>
 
-  <script src="app.js"></script>
+  <script type="module" src="js/main.js"></script>
 </body>
 </html>

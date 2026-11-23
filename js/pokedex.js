@@ -1,3 +1,5 @@
+import { cryUrlList, playCry, speakSpanish, stopAllAudio } from "./audio.js";
+
 const CAUGHT_KEY = "pokemundo_caught";
 const PAGE_SIZE = 100;
 const RENDER_CHUNK = 36;
@@ -52,14 +54,6 @@ const KEY_POKEMON = [
   cryUrls: cryUrlList(poke.id),
 }));
 
-const habitats = [
-  { lat: 9.1, lng: -79.5, label: "Selva Tropical (Panamá)", pokeId: 1 },
-  { lat: 19.4, lng: -155.3, label: "Zona Volcánica (Hawái)", pokeId: 4 },
-  { lat: 35.6, lng: 139.7, label: "Ciudad Eléctrica (Tokio)", pokeId: 25 },
-  { lat: 0.0, lng: -140.0, label: "Océano Pacífico Profundo", pokeId: 382 },
-  { lat: 71.0, lng: 25.0, label: "Ártico Helado", pokeId: 713 },
-];
-
 const byId = new Map(KEY_POKEMON.map((poke) => [poke.id, poke]));
 const typeById = new Map();
 const descJobs = new Map();
@@ -70,14 +64,10 @@ let totalExpected = 0;
 let currentPoke = null;
 let modalToken = 0;
 let speakToken = 0;
-let speakTimer = 0;
-let cryAudio = null;
-let cryToken = 0;
 let renderJob = 0;
 let renderQueued = false;
 let searchTimer = 0;
 let loadController = null;
-let mapInstance = null;
 
 const statusText = document.getElementById("statusText");
 const caughtCount = document.getElementById("caughtCount");
@@ -91,14 +81,6 @@ const modalBackdrop = document.getElementById("modalBackdrop");
 const speakBtn = document.getElementById("speakBtn");
 const catchBtn = document.getElementById("catchBtn");
 const pokeStage = document.getElementById("pokeStage");
-const mapElement = document.getElementById("map");
-
-function cryUrlList(id) {
-  return [
-    `https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/${id}.ogg`,
-    `https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/legacy/${id}.ogg`,
-  ];
-}
 
 function artworkUrl(id) {
   return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`;
@@ -131,19 +113,15 @@ function loadCaught() {
   }
 }
 
-function displayName(name) {
+export function displayName(name) {
   return String(name || "Pokémon").replace(/-/g, " ");
 }
 
-function titleName(name) {
+export function titleName(name) {
   return displayName(name).replace(/(^|\s)\S/g, (chunk) => chunk.toUpperCase());
 }
 
-function formatId(id) {
-  return `#${String(id).padStart(3, "0")}`;
-}
-
-function escapeHtml(value) {
+export function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, (char) => ({
     "&": "&amp;",
     "<": "&lt;",
@@ -151,6 +129,14 @@ function escapeHtml(value) {
     '"': "&quot;",
     "'": "&#39;",
   }[char]));
+}
+
+export function getCatalog() {
+  return catalog;
+}
+
+function formatId(id) {
+  return `#${String(id).padStart(3, "0")}`;
 }
 
 function yieldToMain() {
@@ -342,66 +328,15 @@ function stageClass(types) {
   return ANIMATED_TYPES.has(main) ? `stage anim-${main}` : "stage anim-default";
 }
 
-function stopCry() {
-  cryToken += 1;
-  if (!cryAudio) return;
-  cryAudio.onerror = null;
-  cryAudio.pause();
-  cryAudio.removeAttribute("src");
-  cryAudio.load();
-  cryAudio = null;
-}
-
 function pulseStage() {
   pokeStage.classList.add("react");
   window.setTimeout(() => pokeStage.classList.remove("react"), 350);
 }
 
-function playPokemonSound(poke) {
+function playCryFor(poke) {
   if (!poke) return;
-  window.clearTimeout(speakTimer);
-  if ("speechSynthesis" in window) window.speechSynthesis.cancel();
-  stopCry();
-  const token = cryToken;
-  const urls = (poke.cryUrls && poke.cryUrls.length ? poke.cryUrls : cryUrlList(poke.id)).filter(Boolean);
   pulseStage();
-  if (!urls.length) return;
-
-  const audio = new Audio();
-  cryAudio = audio;
-  let step = 0;
-  const tryUrl = () => {
-    if (token !== cryToken || step >= urls.length) return;
-    audio.src = urls[step];
-    const pending = audio.play();
-    if (pending && typeof pending.catch === "function") pending.catch(() => {});
-  };
-  audio.onerror = () => {
-    if (token !== cryToken) return;
-    step += 1;
-    tryUrl();
-  };
-  tryUrl();
-}
-
-function pickSpanishVoice() {
-  if (!("speechSynthesis" in window)) return null;
-  return window.speechSynthesis.getVoices().find((voice) => /^es(-|$)/i.test(voice.lang)) || null;
-}
-
-function speakExplanation(poke) {
-  if (!poke || !("speechSynthesis" in window)) return;
-  stopCry();
-  const utter = new SpeechSynthesisUtterance(explanationText(poke));
-  utter.lang = "es-ES";
-  const voice = pickSpanishVoice();
-  if (voice) utter.voice = voice;
-  window.speechSynthesis.cancel();
-  window.clearTimeout(speakTimer);
-  speakTimer = window.setTimeout(() => {
-    if (currentPoke !== poke || !modalBackdrop.classList.contains("open")) return;
-    window.speechSynthesis.speak(utter);
-  }, 50);
+  playCry(poke);
 }
 
 async function fetchSpanishDescription(poke) {
@@ -457,7 +392,7 @@ function refreshModal(poke) {
   if (card) fillBadges(card, poke.types);
 }
 
-function openPokemon(id) {
+export function openPokemon(id) {
   const poke = byId.get(Number(id));
   if (!poke) return;
   currentPoke = poke;
@@ -474,7 +409,7 @@ function openPokemon(id) {
   pokeStage.className = stageClass(poke.types);
   catchBtn.textContent = caught.has(poke.id) ? "Capturado ✓" : "Marcar capturado";
   modalBackdrop.classList.add("open");
-  playPokemonSound(poke);
+  playCryFor(poke);
 
   ensureSpanishDescription(poke).then(() => {
     if (token !== modalToken) return;
@@ -483,9 +418,7 @@ function openPokemon(id) {
 }
 
 function closeModal() {
-  window.clearTimeout(speakTimer);
-  if ("speechSynthesis" in window) window.speechSynthesis.cancel();
-  stopCry();
+  stopAllAudio();
   modalBackdrop.classList.remove("open");
 }
 
@@ -602,154 +535,60 @@ async function loadCatalog() {
   }
 }
 
-function createMap() {
-  mapInstance = L.map(mapElement, { fadeAnimation: false }).setView([15, -40], 2);
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    attribution: "&copy; OpenStreetMap",
-  }).addTo(mapInstance);
-
-  habitats.forEach((habitat) => {
-    const marker = L.marker([habitat.lat, habitat.lng]).addTo(mapInstance);
-    marker.bindPopup(
-      `<b>${escapeHtml(habitat.label)}</b><br><button type="button" onclick="openPokemon(${habitat.pokeId})">Ver Pokémon</button>`
-    );
+export function initPokedex() {
+  pokeStage.addEventListener("click", () => {
+    if (currentPoke) playCryFor(currentPoke);
+  });
+  pokeStage.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    event.preventDefault();
+    if (currentPoke) playCryFor(currentPoke);
   });
 
-  requestAnimationFrame(() => mapInstance.invalidateSize(false));
-}
-
-function resizeMapWhenVisible(attempt = 0) {
-  const mapView = document.getElementById("mapView");
-  if (!mapView.classList.contains("active")) return;
-  const width = mapElement.clientWidth;
-  const height = mapElement.clientHeight;
-  if (width === 0 || height === 0) {
-    if (attempt < 8) requestAnimationFrame(() => resizeMapWhenVisible(attempt + 1));
-    return;
-  }
-  if (typeof L === "undefined") {
-    if (attempt < 20) {
-      window.setTimeout(() => resizeMapWhenVisible(attempt + 1), 100);
-    } else {
-      statusText.textContent = "No se pudo cargar el mapa. La Pokédex sigue disponible.";
+  speakBtn.addEventListener("click", async () => {
+    const poke = currentPoke;
+    if (!poke) return;
+    const token = ++speakToken;
+    speakBtn.disabled = true;
+    speakBtn.textContent = "Cargando explicación…";
+    try {
+      await ensureSpanishDescription(poke);
+      if (token !== speakToken || currentPoke !== poke) return;
+      refreshModal(poke);
+      speakSpanish(
+        explanationText(poke),
+        () => currentPoke === poke && modalBackdrop.classList.contains("open")
+      );
+    } finally {
+      if (token === speakToken) {
+        speakBtn.disabled = false;
+        speakBtn.textContent = "Escuchar explicación";
+      }
     }
-    return;
-  }
-  if (!mapInstance) createMap();
-  mapInstance.invalidateSize(false);
-  mapResizeAttempts += 1;
-  window.setTimeout(() => {
-    if (mapInstance && mapElement.clientWidth > 0) mapInstance.invalidateSize(false);
-  }, 180);
-}
-
-function activateView(viewName) {
-  document.querySelectorAll(".tab-btn").forEach((tab) => {
-    const active = tab.dataset.view === viewName;
-    tab.classList.toggle("active", active);
-    tab.setAttribute("aria-selected", active ? "true" : "false");
   });
-  document.querySelectorAll(".view").forEach((view) => {
-    view.classList.toggle("active", view.id === viewName);
+
+  catchBtn.addEventListener("click", () => {
+    if (!currentPoke) return;
+    if (caught.has(currentPoke.id)) caught.delete(currentPoke.id);
+    else caught.add(currentPoke.id);
+    updateCaughtCounter();
+    markCaughtTag(currentPoke.id);
+    catchBtn.textContent = caught.has(currentPoke.id) ? "Capturado ✓" : "Marcar capturado";
   });
-  if (viewName === "mapView") resizeMapWhenVisible();
-}
 
-document.querySelectorAll(".tab-btn").forEach((button) => {
-  button.addEventListener("click", () => activateView(button.dataset.view));
-});
+  document.getElementById("closeModal").addEventListener("click", closeModal);
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && modalBackdrop.classList.contains("open")) closeModal();
+  });
+  searchInput.addEventListener("input", () => {
+    window.clearTimeout(searchTimer);
+    searchTimer = window.setTimeout(startRender, 150);
+  });
+  typeFilter.addEventListener("change", startRender);
+  document.getElementById("retryBtn").addEventListener("click", loadCatalog);
 
-pokeStage.addEventListener("click", () => {
-  if (currentPoke) playPokemonSound(currentPoke);
-});
-
-pokeStage.addEventListener("keydown", (event) => {
-  if (event.key !== "Enter" && event.key !== " ") return;
-  event.preventDefault();
-  if (currentPoke) playPokemonSound(currentPoke);
-});
-
-speakBtn.addEventListener("click", async () => {
-  const poke = currentPoke;
-  if (!poke) return;
-  const token = ++speakToken;
-  const previousLabel = "Escuchar explicación";
-  speakBtn.disabled = true;
-  speakBtn.textContent = "Cargando explicación…";
-  try {
-    await ensureSpanishDescription(poke);
-    if (token !== speakToken || currentPoke !== poke) return;
-    refreshModal(poke);
-    speakExplanation(poke);
-  } finally {
-    if (token === speakToken) {
-      speakBtn.disabled = false;
-      speakBtn.textContent = previousLabel;
-    }
-  }
-});
-
-catchBtn.addEventListener("click", () => {
-  if (!currentPoke) return;
-  if (caught.has(currentPoke.id)) caught.delete(currentPoke.id);
-  else caught.add(currentPoke.id);
   updateCaughtCounter();
-  markCaughtTag(currentPoke.id);
-  catchBtn.textContent = caught.has(currentPoke.id) ? "Capturado ✓" : "Marcar capturado";
-});
-
-document.getElementById("closeModal").addEventListener("click", closeModal);
-
-document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape" && modalBackdrop.classList.contains("open")) closeModal();
-});
-
-searchInput.addEventListener("input", () => {
-  window.clearTimeout(searchTimer);
-  searchTimer = window.setTimeout(startRender, 150);
-});
-
-typeFilter.addEventListener("change", startRender);
-
-document.getElementById("retryBtn").addEventListener("click", loadCatalog);
-
-document.getElementById("radarBtn").addEventListener("click", () => {
-  resizeMapWhenVisible();
-  if (!mapInstance || !catalog.length) return;
-  const poke = catalog[Math.floor(Math.random() * catalog.length)];
-  const lat = Number((Math.random() * 110 - 50).toFixed(2));
-  const lng = Number((Math.random() * 320 - 160).toFixed(2));
-  mapInstance.setView([lat, lng], 4);
-  const marker = L.marker([lat, lng]).addTo(mapInstance);
-  marker.bindPopup(
-    `<b>¡${escapeHtml(titleName(poke.name))} salvaje!</b><br><button type="button" onclick="openPokemon(${poke.id})">Abrir ficha</button>`
-  ).openPopup();
-  requestAnimationFrame(() => mapInstance.invalidateSize(false));
-});
-
-window.addEventListener("resize", () => {
-  if (document.getElementById("mapView").classList.contains("active")) resizeMapWhenVisible();
-});
-
-if (typeof ResizeObserver !== "undefined") {
-  const observer = new ResizeObserver(() => {
-    if (!mapInstance || !document.getElementById("mapView").classList.contains("active")) return;
-    if (mapElement.clientWidth === 0 || mapElement.clientHeight === 0) return;
-    mapInstance.invalidateSize(false);
-  });
-  observer.observe(mapElement);
+  statusText.textContent = "Pokémon clave listos. Cargando catálogo completo…";
+  startRender();
+  loadCatalog();
 }
-
-if ("speechSynthesis" in window) {
-  window.speechSynthesis.getVoices();
-  window.speechSynthesis.addEventListener("voiceschanged", () => {
-    window.speechSynthesis.getVoices();
-  });
-}
-
-window.openPokemon = openPokemon;
-
-updateCaughtCounter();
-statusText.textContent = "Pokémon clave listos. Cargando catálogo completo…";
-startRender();
-loadCatalog();

@@ -193,6 +193,23 @@ input:focus, select:focus, button:focus-visible {
   justify-content: space-between;
   margin-bottom: 12px;
 }
+.map-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+.layer-select {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+.layer-select select {
+  flex: none;
+  min-width: 170px;
+}
 #map {
   height: 520px;
   min-height: 360px;

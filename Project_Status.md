@@ -1,25 +1,40 @@
 # PokéMundo Dex
 
-Estado: listo para probar en local.
+Estado: base modular lista para seguir agregando funciones.
 
-## Estructura
+## Árbol
 
-- `index.html` — página, pestañas, buscador, mapa y ficha.
-- `styles.css` — aspecto de la Pokédex, la barra de capturados y el mapa.
-- `app.js` — catálogo, audio, capturas y Leaflet.
-- Se retiró `gemini-code-1795408545716.html`; era el mismo archivo en un solo bloque.
+```text
+AldoPokedex/
+├── index.html
+├── css/
+│   └── styles.css
+├── js/
+│   ├── main.js       # pestañas y arranque
+│   ├── pokedex.js    # catálogo, búsqueda, filtros, capturas y ficha
+│   ├── audio.js      # grito del Pokémon y lectura en español, separados
+│   └── map.js        # mapa Leaflet, capas, hábitats y radar
+├── Project_Status.md
+└── .cursorrules
+```
 
-## Comportamiento
+## Comportamiento que se conserva
 
-- Al abrir se ven al instante Bulbasaur, Charmander, Squirtle, Pikachu, Kyogre y Avalugg.
-- Después se pide el catálogo de PokéAPI en páginas de 100, hasta el total que devuelva la API (formas recientes incluidas). Las tarjetas se añaden por tandas para no congelar la pantalla.
-- Las imágenes son PNG oficiales. Si faltan, se usa el sprite estático y, en último caso, una imagen local. No hay GIFs externos.
-- El grito suena solo al abrir la ficha o al tocar el escenario del Pokémon.
-- «Escuchar explicación» solo lee el texto en español (`es-ES`).
-- La barra superior muestra capturados, total y porcentaje. Se guarda en `localStorage` (`pokemundo_caught`).
-- El mapa se recalcula al cambiar de pestaña, al redimensionar la ventana y cuando cambia el tamaño del contenedor.
+- Los seis Pokémon clave aparecen al instante. El catálogo completo de PokéAPI entra en páginas de 100, con respaldo local si la red falla.
+- Las imágenes son el arte oficial o el sprite frontal. La animación depende del tipo (fuego, agua, planta, eléctrico u otra).
+- La barra `Capturados: N / total` se guarda en `localStorage` con la clave `pokemundo_caught`.
+- El grito solo suena al abrir la ficha o al tocar el escenario. «Escuchar explicación» solo lee el texto en español.
+- Leaflet recalcula el tamaño al cambiar de pestaña, al redimensionar la ventana y si cambia el contenedor.
 
-## Probar en local
+## Mapa Mundial
+
+- Selector de capa: Mapa estándar (OpenStreetMap) o Satélite (Esri).
+- Hábitats en varios continentes y océanos. Cada marcador abre la ficha.
+- Radar Salvaje coloca un Pokémon al azar en el mapa.
+
+## Arrancar en local
+
+Hay que usar un servidor. Los módulos no cargan si se abre el archivo directo.
 
 ```bash
 cd ~/Desktop/AldoPokedex
@@ -28,7 +43,10 @@ python3 -m http.server 8765
 
 Abre http://127.0.0.1:8765/
 
-1. Comprueba que primero aparecen los seis Pokémon clave y el texto pasa a «Catálogo completo».
-2. Abre uno: debe sonar el grito. «Escuchar explicación» solo lee la descripción en español. Tocar la imagen vuelve a sonar el grito.
-3. Marca capturado y mira la barra `Capturados: N / total`.
-4. Cambia a Mapa Mundial y vuelve a Pokédex: el mapa debe ocupar todo el recuadro, sin franja gris.
+## Qué probar primero
+
+1. Los seis clave salen al momento y luego el texto pasa a «Catálogo completo».
+2. Abre un Pokémon: suena el grito. «Escuchar explicación» solo lee en español. Tocar la imagen repite el grito.
+3. Marca capturado y recarga: la barra y la marca siguen ahí.
+4. En Mapa Mundial cambia entre Satélite y Mapa estándar, abre un hábitat y pulsa Radar Salvaje.
+5. Vuelve a Pokédex y regresa al mapa: el mapa ocupa todo el recuadro.
