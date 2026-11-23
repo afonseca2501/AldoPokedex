@@ -1,33 +1,9 @@
 import { cryUrlList, playCry, speakSpanish, stopAllAudio } from "./audio.js";
+import { TYPE_ORDER, getType, paintTypeBadges, typeName } from "./types.js?v=4";
 
 const CAUGHT_KEY = "pokemundo_caught";
 const PAGE_SIZE = 100;
 const RENDER_CHUNK = 36;
-const TYPE_ORDER = [
-  "normal", "fire", "water", "grass", "electric", "ice",
-  "fighting", "poison", "ground", "flying", "psychic", "bug",
-  "rock", "ghost", "dragon", "dark", "steel", "fairy",
-];
-const TYPE_ES = {
-  normal: "normal",
-  fire: "fuego",
-  water: "agua",
-  grass: "planta",
-  electric: "eléctrico",
-  ice: "hielo",
-  fighting: "lucha",
-  poison: "veneno",
-  ground: "tierra",
-  flying: "volador",
-  psychic: "psíquico",
-  bug: "bicho",
-  rock: "roca",
-  ghost: "fantasma",
-  dragon: "dragón",
-  dark: "siniestro",
-  steel: "acero",
-  fairy: "hada",
-};
 const ANIMATED_TYPES = new Set(["fire", "water", "electric", "grass"]);
 const PLACEHOLDER = `data:image/svg+xml,${encodeURIComponent(
   `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
@@ -160,7 +136,7 @@ function yieldToMain() {
 
 function genericSpanish(poke) {
   const title = titleName(poke.name);
-  const names = (poke.types || []).filter(Boolean).map((type) => TYPE_ES[type] || type);
+  const names = (poke.types || []).filter(Boolean).map((type) => typeName(type));
   if (names.length === 0) return `${title} es un Pokémon registrado en la Pokédex.`;
   if (names.length === 1) return `${title} es un Pokémon de tipo ${names[0]}.`;
   return `${title} es un Pokémon de tipo ${names[0]} y ${names[1]}.`;
@@ -206,20 +182,33 @@ function updateCaughtCounter() {
   caughtListeners.forEach((listener) => listener());
 }
 
+const typeListeners = new Set();
+
+export function pokemonTypes(id) {
+  return (byId.get(Number(id))?.types || []).filter(Boolean);
+}
+
+export function onTypesChange(listener) {
+  typeListeners.add(listener);
+}
+
+function notifyTypes() {
+  typeListeners.forEach((listener) => listener());
+}
+
 function markType(element, types) {
   TYPE_ORDER.forEach((type) => element.classList.remove(`type-${type}`));
   const main = (types || []).find(Boolean);
-  if (main) element.classList.add(`type-${main}`);
+  if (!main) {
+    element.style.borderColor = "";
+    return;
+  }
+  element.classList.add(`type-${main}`);
+  element.style.borderColor = getType(main).color;
 }
 
 function fillBadges(container, types) {
-  container.replaceChildren();
-  (types || []).filter(Boolean).forEach((type) => {
-    const badge = document.createElement("span");
-    badge.className = `badge type-${type}`;
-    badge.textContent = TYPE_ES[type] || type;
-    container.appendChild(badge);
-  });
+  paintTypeBadges(container, types, true);
 }
 
 function setSprite(img, id) {
@@ -539,10 +528,12 @@ function createEvoCard(stage, isCurrent) {
   button.dataset.id = String(stage.id);
   if (isCurrent) button.classList.add("is-current");
   if (caught.has(stage.id)) button.classList.add("is-caught");
-  markType(button, byId.get(stage.id)?.types);
+  const stageTypes = byId.get(stage.id)?.types || [];
+  markType(button, stageTypes);
   const label = [
     formatId(stage.id),
     titleName(stage.name),
+    ...stageTypes.map((type) => typeName(type)),
     isCurrent ? "actual" : "",
     caught.has(stage.id) ? "capturado" : "",
   ].filter(Boolean).join(", ");
@@ -563,6 +554,10 @@ function createEvoCard(stage, isCurrent) {
   name.className = "evo-name";
   name.textContent = displayName(stage.name);
 
+  const types = document.createElement("div");
+  types.className = "evo-types";
+  paintTypeBadges(types, stageTypes, false);
+
   const marks = document.createElement("div");
   marks.className = "evo-marks";
   if (isCurrent) {
@@ -578,7 +573,7 @@ function createEvoCard(stage, isCurrent) {
     marks.append(got);
   }
 
-  button.append(image, number, name, marks);
+  button.append(image, number, name, types, marks);
   button.addEventListener("click", () => {
     if (currentPoke && currentPoke.id === stage.id) return;
     openPokemon(stage.id);
@@ -768,10 +763,12 @@ function applyTypes() {
       changed = true;
     }
   }
-  if (!changed) return;
-  if (typeFilter.value) startRender();
-  else refreshVisibleTypes();
-  if (currentPoke) refreshModal(currentPoke);
+  if (changed) {
+    if (typeFilter.value) startRender();
+    else refreshVisibleTypes();
+    if (currentPoke) refreshModal(currentPoke);
+  }
+  notifyTypes();
 }
 
 async function loadCatalog() {

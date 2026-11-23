@@ -1,4 +1,5 @@
-import { escapeHtml, getCatalog, isCaught, onCaughtChange, titleName } from "./pokedex.js?v=3";
+import { escapeHtml, getCatalog, isCaught, onCaughtChange, onTypesChange, pokemonTypes, titleName } from "./pokedex.js?v=4";
+import { paintTypeBadges } from "./types.js?v=4";
 
 const SIGHTINGS = [
   { lat: 43.65, lng: -79.38, place: "Toronto", country: "Canadá", code: "CA", pokeId: 133, name: "eevee" },
@@ -121,7 +122,7 @@ function pokemonIcon(id, name, radar) {
   const label = escapeHtml(titleName(name));
   return L.divIcon({
     className: radar ? "poke-pin-wrap poke-pin-radar" : "poke-pin-wrap",
-    html: `<div class="poke-pin"><img alt="${label}" width="48" height="48" data-id="${numeric}" decoding="async"><span class="poke-ball" aria-hidden="true"></span></div>`,
+    html: `<div class="poke-pin"><span class="pin-types" aria-hidden="true"></span><img alt="${label}" width="48" height="48" data-id="${numeric}" decoding="async"><span class="poke-ball" aria-hidden="true"></span></div>`,
     iconSize: [56, 56],
     iconAnchor: [28, 28],
     popupAnchor: [0, -30],
@@ -130,6 +131,8 @@ function pokemonIcon(id, name, radar) {
 
 function preparePin(marker, id) {
   const hook = () => {
+    paintCaught(marker, id);
+    paintTypes(marker, id);
     const img = marker.getElement()?.querySelector("img");
     if (!img || img.dataset.ready) return;
     img.dataset.ready = "1";
@@ -144,13 +147,18 @@ function preparePin(marker, id) {
     };
     img.addEventListener("error", fail);
     img.src = artworkUrl(id);
-    paintCaught(marker, id);
   };
   marker.on("add", hook);
 }
 
 function paintCaught(marker, id) {
   marker.getElement()?.classList.toggle("is-caught", isCaught(id));
+}
+
+function paintTypes(marker, id) {
+  const row = marker.getElement()?.querySelector(".pin-types");
+  if (!row) return;
+  paintTypeBadges(row, pokemonTypes(id), false);
 }
 
 function focusMarker(marker) {
@@ -317,6 +325,9 @@ export function initMap() {
   document.getElementById("radarBtn").addEventListener("click", launchRadar);
   onCaughtChange(() => {
     placedMarkers.forEach(({ marker, id }) => paintCaught(marker, id));
+  });
+  onTypesChange(() => {
+    placedMarkers.forEach(({ marker, id }) => paintTypes(marker, id));
   });
   window.addEventListener("resize", () => {
     if (document.getElementById("mapView").classList.contains("active")) showMap();
