@@ -182,25 +182,41 @@ function cleanFlavor(text) {
   return String(text).replace(/[\f\n\r]+/g, " ").replace(/\s+/g, " ").trim();
 }
 
+const caughtListeners = new Set();
+
+export function isCaught(id) {
+  return caught.has(Number(id));
+}
+
+export function onCaughtChange(listener) {
+  caughtListeners.add(listener);
+}
+
 function updateCaughtCounter() {
   const total = totalExpected || catalog.length;
   const captured = caught.size;
   const exact = total > 0 ? Math.min(100, (captured / total) * 100) : 0;
-  const label = exact <= 0 ? "0%" : exact < 10 ? `${exact.toFixed(1)}%` : `${Math.round(exact)}%`;
-  caughtCount.textContent = `Capturados: ${captured} / ${total}`;
-  caughtRatio.textContent = label;
+  caughtCount.textContent = captured === 1 ? "¡Llevas 1!" : `¡Llevas ${captured}!`;
+  caughtRatio.textContent = `${captured} / ${total}`;
   caughtBar.style.width = captured > 0 ? `max(${exact}%, 10px)` : "0%";
   caughtTrack.setAttribute("aria-valuemax", String(total));
   caughtTrack.setAttribute("aria-valuenow", String(captured));
   caughtTrack.setAttribute("aria-valuetext", `${captured} de ${total} Pokémon capturados`);
   localStorage.setItem(CAUGHT_KEY, JSON.stringify([...caught]));
+  caughtListeners.forEach((listener) => listener());
+}
+
+function markType(element, types) {
+  TYPE_ORDER.forEach((type) => element.classList.remove(`type-${type}`));
+  const main = (types || []).find(Boolean);
+  if (main) element.classList.add(`type-${main}`);
 }
 
 function fillBadges(container, types) {
   container.replaceChildren();
   (types || []).filter(Boolean).forEach((type) => {
     const badge = document.createElement("span");
-    badge.className = "badge";
+    badge.className = `badge type-${type}`;
     badge.textContent = TYPE_ES[type] || type;
     container.appendChild(badge);
   });
@@ -225,6 +241,7 @@ function createCard(poke) {
   card.type = "button";
   card.className = "poke-card";
   card.dataset.id = String(poke.id);
+  markType(card, poke.types);
 
   const tag = document.createElement("span");
   tag.className = "caught-tag";
@@ -384,7 +401,9 @@ function refreshVisibleTypes() {
   pokeGrid.querySelectorAll(".poke-card").forEach((card) => {
     const poke = byId.get(Number(card.dataset.id));
     const holder = card.querySelector(".poke-types");
-    if (poke && holder) fillBadges(holder, poke.types);
+    if (!poke || !holder) return;
+    fillBadges(holder, poke.types);
+    markType(card, poke.types);
   });
 }
 
@@ -520,6 +539,7 @@ function createEvoCard(stage, isCurrent) {
   button.dataset.id = String(stage.id);
   if (isCurrent) button.classList.add("is-current");
   if (caught.has(stage.id)) button.classList.add("is-caught");
+  markType(button, byId.get(stage.id)?.types);
   const label = [
     formatId(stage.id),
     titleName(stage.name),
@@ -668,7 +688,7 @@ export function openPokemon(id) {
   image.alt = titleName(poke.name);
   setSprite(image, poke.id);
   pokeStage.className = stageClass(poke.types);
-  catchBtn.textContent = caught.has(poke.id) ? "Capturado ✓" : "Marcar capturado";
+  catchBtn.textContent = caught.has(poke.id) ? "¡Atrapado!" : "¡Atrapar!";
   const knownChain = (poke.evolutionChainUrl && chainCache.get(poke.evolutionChainUrl)) || chainBySpecies.get(poke.id);
   if (knownChain) renderEvolution(knownChain, poke, true);
   else showEvolutionLoading();
@@ -830,11 +850,22 @@ export function initPokedex() {
 
   catchBtn.addEventListener("click", () => {
     if (!currentPoke) return;
-    if (caught.has(currentPoke.id)) caught.delete(currentPoke.id);
-    else caught.add(currentPoke.id);
+    const already = caught.has(currentPoke.id);
+    if (already) {
+      const name = titleName(currentPoke.name);
+      if (!window.confirm(`¿Soltar a ${name}?`)) return;
+      caught.delete(currentPoke.id);
+    } else {
+      caught.add(currentPoke.id);
+    }
     updateCaughtCounter();
     markCaughtTag(currentPoke.id);
-    catchBtn.textContent = caught.has(currentPoke.id) ? "Capturado ✓" : "Marcar capturado";
+    catchBtn.textContent = caught.has(currentPoke.id) ? "¡Atrapado!" : "¡Atrapar!";
+    if (!already) {
+      catchBtn.classList.remove("caught-pop");
+      void catchBtn.offsetWidth;
+      catchBtn.classList.add("caught-pop");
+    }
     if (visibleChain) renderEvolution(visibleChain, currentPoke, false);
   });
 

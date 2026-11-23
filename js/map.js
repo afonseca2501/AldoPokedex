@@ -1,4 +1,4 @@
-import { escapeHtml, getCatalog, titleName } from "./pokedex.js";
+import { escapeHtml, getCatalog, isCaught, onCaughtChange, titleName } from "./pokedex.js?v=3";
 
 const SIGHTINGS = [
   { lat: 43.65, lng: -79.38, place: "Toronto", country: "Canadá", code: "CA", pokeId: 133, name: "eevee" },
@@ -93,6 +93,7 @@ let mapInstance = null;
 let activeTiles = null;
 let preferredLayer = "streets";
 let radarPokeId = null;
+const placedMarkers = [];
 
 const mapElement = document.getElementById("map");
 const layerSelect = document.getElementById("mapLayer");
@@ -120,7 +121,7 @@ function pokemonIcon(id, name, radar) {
   const label = escapeHtml(titleName(name));
   return L.divIcon({
     className: radar ? "poke-pin-wrap poke-pin-radar" : "poke-pin-wrap",
-    html: `<div class="poke-pin"><img alt="${label}" width="48" height="48" data-id="${numeric}" decoding="async"></div>`,
+    html: `<div class="poke-pin"><img alt="${label}" width="48" height="48" data-id="${numeric}" decoding="async"><span class="poke-ball" aria-hidden="true"></span></div>`,
     iconSize: [56, 56],
     iconAnchor: [28, 28],
     popupAnchor: [0, -30],
@@ -143,8 +144,21 @@ function preparePin(marker, id) {
     };
     img.addEventListener("error", fail);
     img.src = artworkUrl(id);
+    paintCaught(marker, id);
   };
   marker.on("add", hook);
+}
+
+function paintCaught(marker, id) {
+  marker.getElement()?.classList.toggle("is-caught", isCaught(id));
+}
+
+function focusMarker(marker) {
+  if (!mapInstance) return;
+  document.querySelectorAll(".poke-pin-wrap.is-chosen").forEach((el) => el.classList.remove("is-chosen"));
+  marker.getElement()?.classList.add("is-chosen");
+  const zoom = Math.max(mapInstance.getZoom(), 6);
+  mapInstance.flyTo(marker.getLatLng(), zoom, { duration: 0.45 });
 }
 
 function addSighting(spot, pokemonName, buttonLabel, radar = false, open = false) {
@@ -154,11 +168,16 @@ function addSighting(spot, pokemonName, buttonLabel, radar = false, open = false
     keyboard: true,
   });
   preparePin(marker, spot.pokeId);
+  placedMarkers.push({ marker, id: Number(spot.pokeId) });
+  marker.on("click", () => focusMarker(marker));
   marker.addTo(mapInstance).bindPopup(
     sightingMarkup(spot, pokemonName, buttonLabel),
     open ? { autoClose: false } : undefined
   );
-  if (open) marker.openPopup();
+  if (open) {
+    marker.openPopup();
+    focusMarker(marker);
+  }
   return marker;
 }
 
@@ -286,7 +305,6 @@ function launchRadar() {
     pokeId: poke.id,
   };
   const pokemonName = titleName(poke.name);
-  mapInstance.setView([sighting.lat, sighting.lng], 4);
   addSighting(sighting, pokemonName, "Abrir ficha", true, true);
   showRadarBanner(sighting, pokemonName);
   requestAnimationFrame(() => mapInstance.invalidateSize(false));
@@ -297,6 +315,9 @@ export function initMap() {
   layerSelect.value = preferredLayer;
   layerSelect.addEventListener("change", () => applyLayer(layerSelect.value));
   document.getElementById("radarBtn").addEventListener("click", launchRadar);
+  onCaughtChange(() => {
+    placedMarkers.forEach(({ marker, id }) => paintCaught(marker, id));
+  });
   window.addEventListener("resize", () => {
     if (document.getElementById("mapView").classList.contains("active")) showMap();
   });

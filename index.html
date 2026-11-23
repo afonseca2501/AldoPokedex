@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PokéMundo Dex & Mapa</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/styles.css?v=3" />
   <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
@@ -24,8 +24,8 @@
     <span id="statusText">Preparando Pokémon clave…</span>
     <div class="progress-block">
       <div class="progress-label">
-        <span id="caughtCount">Capturados: 0 / 0</span>
-        <span id="caughtRatio">0%</span>
+        <span id="caughtCount">¡Llevas 0!</span>
+        <span id="caughtRatio">0 / 0</span>
       </div>
       <div
         id="caughtTrack"
@@ -119,8 +119,8 @@
       </section>
 
       <div class="actions">
-        <button class="btn btn-voice" id="speakBtn" type="button">Escuchar explicación</button>
-        <button class="btn btn-catch" id="catchBtn" type="button">Marcar capturado</button>
+        <button class="btn btn-voice" id="speakBtn" type="button" aria-label="Escuchar la explicación en español">Escuchar</button>
+        <button class="btn btn-catch" id="catchBtn" type="button">¡Atrapar!</button>
       </div>
     </div>
   </div>

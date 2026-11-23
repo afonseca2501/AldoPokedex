@@ -23,7 +23,8 @@ AldoPokedex/
 - Los seis Pokémon clave aparecen al instante. El catálogo completo de PokéAPI entra en páginas de 100, con respaldo local si la red falla.
 - La cuadrícula pinta lotes de 36 tarjetas. Un centinela al final, observado con 600 px de margen inferior, pide el siguiente lote antes de llegar al fondo. Cada tarjeta solo carga su imagen (`loading="lazy"` y `decoding="async"`). La especie y la línea evolutiva se piden al abrir la ficha.
 - Las imágenes son el arte oficial o el sprite frontal. La animación depende del tipo (fuego, agua, planta, eléctrico u otra).
-- La barra `Capturados: N / total` se guarda en `localStorage` con la clave `pokemundo_caught`.
+- La barra se guarda en `localStorage` con la clave `pokemundo_caught`. El texto principal es «¡Llevas N!» y el total fino queda al lado.
+- Los tipos usan sus colores clásicos en tarjetas, ficha y línea evolutiva. Los botones de la ficha dicen «Escuchar» y «¡Atrapar!». La X de la ficha se queda visible al bajar.
 - El grito y la reacción del escenario solo ocurren al tocar o hacer clic sobre el Pokémon dentro de la ficha. Abrir la tarjeta no reproduce sonido. «Escuchar explicación» solo lee el texto en español.
 - La cabecera es azul profundo y eléctrico, con acentos naranja en la pestaña activa, el botón de explicación y la barra de capturados.
 - La cabecera muestra «¡Bienvenido, Aldo!».
@@ -41,7 +42,7 @@ AldoPokedex/
 
 - Capas sin claves privadas: Calles con el mapa de calles de Esri y Satélite con Esri World Imagery. Si un servidor falla, Calles pasa a OpenStreetMap y Satélite al segundo servidor de Esri.
 - 59 avistamientos fijos repartidos por América, Europa, África, Asia y Oceanía.
-- Cada lugar usa la imagen del Pokémon (arte oficial, sprite si falla y una pokébola de respaldo) dentro de un recuadro azul y naranja de 56 px, en lugar de un pin genérico.
+- Cada lugar usa la imagen del Pokémon (arte oficial, sprite si falla y una pokébola de respaldo) dentro de un recuadro azul y naranja de 56 px. Al tocarlo, el mapa se acerca y ese recuadro crece. Si ya está capturado, lleva una pokébola.
 - El popup y el radar muestran la bandera grande, el código del país como respaldo, el nombre del país y un botón para abrir la ficha. Abrir la ficha no reproduce el grito.
 - Radar Salvaje elige otro Pokémon, lo dibuja con su imagen y mueve un poco las coordenadas dentro de un país de la lista.
 
@@ -59,10 +60,10 @@ Abre http://127.0.0.1:8765/
 ## Qué probar primero
 
 1. Los seis clave salen al momento y luego el texto pasa a «Catálogo completo».
-2. Abre un Pokémon desde la lista: la ficha aparece en silencio. Toca la imagen y entonces suena el grito. «Escuchar explicación» solo lee en español.
+2. Abre un Pokémon desde la lista: la ficha aparece en silencio. Toca la imagen y entonces suena el grito. «Escuchar» solo lee en español. «¡Atrapar!» suma uno a «¡Llevas N!».
 3. Confirma el encabezado azul, el texto «¡Bienvenido, Aldo!» y la barra de capturados en naranja.
 4. Marca capturado y recarga: la barra y la marca siguen ahí.
-5. En Mapa Mundial los marcadores son la imagen del Pokémon. Toca uno: bandera grande, país y «Ver ficha», sin grito. Pulsa Radar Salvaje y revisa el aviso y el nuevo marcador.
+5. En Mapa Mundial toca un marcador: el mapa se acerca, ese Pokémon crece, y ves bandera, país y «Ver ficha», sin grito. Si ya lo atrapaste, el marcador lleva una pokébola.
 6. Vuelve a Pokédex y regresa al mapa: el mapa ocupa todo el recuadro.
 7. Abre Bulbasaur: la línea muestra tres etapas y «Actual» en la primera. Toca Ivysaur: cambia la ficha sin grito. Abre Kyogre: aparece el aviso de que no tiene evoluciones.
 8. En la Pokédex baja con el scroll: los siguientes Pokémon aparecen antes de tocar el fondo. Abrir uno sigue en silencio y el grito solo suena al tocar su imagen.

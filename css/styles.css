@@ -81,11 +81,24 @@ header {
 .progress-label {
   display: flex;
   justify-content: space-between;
+  align-items: baseline;
   gap: 12px;
   margin-bottom: 5px;
   color: var(--text);
   font-weight: 800;
   font-size: 0.82rem;
+}
+#caughtCount { color: #fdba74; font-size: 1.15rem; }
+#caughtCount::before {
+  content: "";
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin-right: 6px;
+  vertical-align: -2px;
+  border-radius: 50%;
+  border: 2px solid #0f172a;
+  background: linear-gradient(#ef4444 0 46%, #0f172a 46% 54%, #f8fafc 54% 100%);
 }
 .progress-track {
   height: 12px;
@@ -175,13 +188,72 @@ input:focus, select:focus, button:focus-visible {
 .poke-name { font-weight: 700; text-transform: capitalize; margin: 4px 0; }
 .badge {
   display: inline-block;
-  font-size: 0.72rem;
-  padding: 2px 8px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding: 3px 8px;
   border-radius: 999px;
   background: var(--card-2);
   margin: 2px;
   text-transform: capitalize;
+  color: #fff;
 }
+.badge.type-normal, .type-normal.badge { background: #a8a77a; color: #0f172a; }
+.badge.type-fire { background: #ee8130; }
+.badge.type-water { background: #6390f0; }
+.badge.type-grass, .badge.type-bug, .badge.type-electric, .badge.type-ice,
+.badge.type-ground, .badge.type-rock, .badge.type-steel, .badge.type-fairy,
+.badge.type-flying { color: #0f172a; }
+.badge.type-grass { background: #7ac74c; }
+.badge.type-electric { background: #f7d02c; }
+.badge.type-ice { background: #96d9d6; }
+.badge.type-fighting { background: #c22e28; }
+.badge.type-poison { background: #a33ea1; }
+.badge.type-ground { background: #e2bf65; }
+.badge.type-flying { background: #a98ff3; }
+.badge.type-psychic { background: #f95587; }
+.badge.type-bug { background: #a6b91a; }
+.badge.type-rock { background: #b6a136; }
+.badge.type-ghost { background: #735797; }
+.badge.type-dragon { background: #6f35fc; }
+.badge.type-dark { background: #705746; }
+.badge.type-steel { background: #b7b7ce; }
+.badge.type-fairy { background: #d685ad; }
+.poke-card.type-fire { border-color: #ee8130; }
+.poke-card.type-water { border-color: #6390f0; }
+.poke-card.type-grass { border-color: #7ac74c; }
+.poke-card.type-electric { border-color: #f7d02c; }
+.poke-card.type-ice { border-color: #96d9d6; }
+.poke-card.type-fighting { border-color: #c22e28; }
+.poke-card.type-poison { border-color: #a33ea1; }
+.poke-card.type-ground { border-color: #e2bf65; }
+.poke-card.type-flying { border-color: #a98ff3; }
+.poke-card.type-psychic { border-color: #f95587; }
+.poke-card.type-bug { border-color: #a6b91a; }
+.poke-card.type-rock { border-color: #b6a136; }
+.poke-card.type-ghost { border-color: #735797; }
+.poke-card.type-dragon { border-color: #6f35fc; }
+.poke-card.type-dark { border-color: #705746; }
+.poke-card.type-steel { border-color: #b7b7ce; }
+.poke-card.type-fairy { border-color: #d685ad; }
+.poke-card.type-normal { border-color: #a8a77a; }
+.evo-card.type-fire { border-color: #ee8130; }
+.evo-card.type-water { border-color: #6390f0; }
+.evo-card.type-grass { border-color: #7ac74c; }
+.evo-card.type-electric { border-color: #f7d02c; }
+.evo-card.type-ice { border-color: #96d9d6; }
+.evo-card.type-fighting { border-color: #c22e28; }
+.evo-card.type-poison { border-color: #a33ea1; }
+.evo-card.type-ground { border-color: #e2bf65; }
+.evo-card.type-flying { border-color: #a98ff3; }
+.evo-card.type-psychic { border-color: #f95587; }
+.evo-card.type-bug { border-color: #a6b91a; }
+.evo-card.type-rock { border-color: #b6a136; }
+.evo-card.type-ghost { border-color: #735797; }
+.evo-card.type-dragon { border-color: #6f35fc; }
+.evo-card.type-dark { border-color: #705746; }
+.evo-card.type-steel { border-color: #b7b7ce; }
+.evo-card.type-fairy { border-color: #d685ad; }
+.evo-card.type-normal { border-color: #a8a77a; }
 .caught-tag {
   position: absolute;
   top: 8px;
@@ -291,6 +363,7 @@ input:focus, select:focus, button:focus-visible {
   border: none;
 }
 .poke-pin {
+  position: relative;
   width: 56px;
   height: 56px;
   display: flex;
@@ -302,6 +375,37 @@ input:focus, select:focus, button:focus-visible {
   box-shadow: 0 0 0 3px #f97316, 0 6px 12px rgba(0, 0, 0, 0.4);
   cursor: pointer;
 }
+.poke-pin-wrap.is-chosen { z-index: 800 !important; }
+.poke-pin-wrap.is-chosen .poke-pin {
+  transform: scale(1.28);
+  border-color: #f97316;
+  box-shadow: 0 0 0 4px #fff, 0 0 0 8px #1d4ed8;
+}
+.poke-ball {
+  display: none;
+  position: absolute;
+  right: -6px;
+  bottom: -6px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid #0f172a;
+  background: linear-gradient(#ef4444 0 46%, #0f172a 46% 54%, #f8fafc 54% 100%);
+  box-shadow: 0 0 0 2px #fff;
+}
+.poke-ball::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid #0f172a;
+  transform: translate(-50%, -50%);
+}
+.poke-pin-wrap.is-caught .poke-ball { display: block; }
 .poke-pin img {
   width: 46px;
   height: 46px;
@@ -435,6 +539,13 @@ input:focus, select:focus, button:focus-visible {
   background: #c2410c;
   transform: translateY(2px);
   box-shadow: 0 0 0 2px #0f172a, 0 1px 0 #9a3412;
+}
+.close-btn {
+  position: sticky;
+  float: right;
+  top: 8px;
+  right: auto;
+  margin: 0 0 -42px;
 }
 
 .stage {
@@ -592,5 +703,11 @@ input:focus, select:focus, button:focus-visible {
 }
 .btn-catch:hover { background: #4ade80; }
 .btn-catch:active { background: #16a34a; }
+.btn-catch.caught-pop { animation: caughtPop 0.45s ease; }
+@keyframes caughtPop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
 .btn:disabled { opacity: 0.7; cursor: wait; }
 .hint { font-size: 0.76rem; color: var(--muted); margin-top: 6px; }
