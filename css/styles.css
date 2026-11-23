@@ -259,20 +259,58 @@ input:focus, select:focus, button:focus-visible {
 .radar-banner .sighting-poke { color: #f8fafc; }
 .radar-banner .flag-badge { background: rgba(255, 255, 255, 0.16); color: #fff7ed; }
 .sighting { min-width: 190px; color: #0f172a; text-align: left; }
-.sighting-country { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
-.flag-emoji { font-size: 1.4rem; line-height: 1; }
+.sighting-country { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+.flag-emoji {
+  font-size: 3rem;
+  line-height: 1;
+  display: inline-flex;
+  filter: drop-shadow(0 2px 0 rgba(15, 23, 42, 0.45));
+}
 .flag-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 1.7rem;
-  padding: 2px 5px;
-  border-radius: 5px;
-  background: #e2e8f0;
+  min-width: 2.6rem;
+  min-height: 2rem;
+  padding: 4px 8px;
+  border-radius: 8px;
+  border: 2px solid #0f172a;
+  background: #fff7ed;
   color: #0f172a;
-  font-size: 0.68rem;
+  font-size: 1rem;
   font-weight: 800;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
+}
+.radar-banner .flag-badge {
+  background: #fff7ed;
+  color: #0f172a;
+  border-color: #fff;
+}
+.poke-pin-wrap {
+  background: transparent;
+  border: none;
+}
+.poke-pin {
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  background: #f8fafc;
+  border: 3px solid #1d4ed8;
+  box-shadow: 0 0 0 3px #f97316, 0 6px 12px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+}
+.poke-pin img {
+  width: 46px;
+  height: 46px;
+  object-fit: contain;
+  pointer-events: none;
+}
+.poke-pin-radar .poke-pin {
+  border-color: #f97316;
+  box-shadow: 0 0 0 3px #1d4ed8, 0 6px 12px rgba(0, 0, 0, 0.45);
 }
 .country-name { font-weight: 800; }
 .sighting-place { color: #475569; font-size: 0.82rem; margin-bottom: 6px; }

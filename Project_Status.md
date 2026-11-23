@@ -41,8 +41,9 @@ AldoPokedex/
 
 - Capas sin claves privadas: Calles con el mapa de calles de Esri y Satélite con Esri World Imagery. Si un servidor falla, Calles pasa a OpenStreetMap y Satélite al segundo servidor de Esri.
 - 59 avistamientos fijos repartidos por América, Europa, África, Asia y Oceanía.
-- Cada marcador muestra la bandera (emoji regional), el código del país como respaldo, el nombre del país y un botón para abrir la ficha. Abrir la ficha no reproduce el grito.
-- Radar Salvaje elige otro Pokémon y mueve un poco las coordenadas dentro de un país de la lista. El aviso superior y el popup repiten bandera, país y el botón de la ficha.
+- Cada lugar usa la imagen del Pokémon (arte oficial, sprite si falla y una pokébola de respaldo) dentro de un recuadro azul y naranja de 56 px, en lugar de un pin genérico.
+- El popup y el radar muestran la bandera grande, el código del país como respaldo, el nombre del país y un botón para abrir la ficha. Abrir la ficha no reproduce el grito.
+- Radar Salvaje elige otro Pokémon, lo dibuja con su imagen y mueve un poco las coordenadas dentro de un país de la lista.
 
 ## Arrancar en local
 
@@ -61,7 +62,7 @@ Abre http://127.0.0.1:8765/
 2. Abre un Pokémon desde la lista: la ficha aparece en silencio. Toca la imagen y entonces suena el grito. «Escuchar explicación» solo lee en español.
 3. Confirma el encabezado azul, el texto «¡Bienvenido, Aldo!» y la barra de capturados en naranja.
 4. Marca capturado y recarga: la barra y la marca siguen ahí.
-5. En Mapa Mundial cambia entre Calles y Satélite, abre un marcador y comprueba bandera, país y «Ver ficha» (sin grito). Pulsa Radar Salvaje y revisa el aviso superior.
+5. En Mapa Mundial los marcadores son la imagen del Pokémon. Toca uno: bandera grande, país y «Ver ficha», sin grito. Pulsa Radar Salvaje y revisa el aviso y el nuevo marcador.
 6. Vuelve a Pokédex y regresa al mapa: el mapa ocupa todo el recuadro.
 7. Abre Bulbasaur: la línea muestra tres etapas y «Actual» en la primera. Toca Ivysaur: cambia la ficha sin grito. Abre Kyogre: aparece el aviso de que no tiene evoluciones.
 8. En la Pokédex baja con el scroll: los siguientes Pokémon aparecen antes de tocar el fondo. Abrir uno sigue en silencio y el grito solo suena al tocar su imagen.

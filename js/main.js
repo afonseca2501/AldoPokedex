@@ -1,5 +1,5 @@
 import { warmSpanishVoices } from "./audio.js";
-import { showMap, initMap } from "./map.js";
+import { showMap, initMap } from "./map.js?marcadores=1";
 import { initPokedex, openPokemon } from "./pokedex.js";
 
 function activateView(viewName) {
