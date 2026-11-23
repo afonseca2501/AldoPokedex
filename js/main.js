@@ -1,8 +1,15 @@
 import { warmSpanishVoices } from "./audio.js";
-import { showMap, initMap } from "./map.js?v=5";
-import { initPokedex, openPokemon } from "./pokedex.js?v=5";
+import { showMap, initMap } from "./map.js?v=6";
+import { initPokedex, openPokemon } from "./pokedex.js?v=6";
+
+const welcome = document.getElementById("welcome");
+
+function hideWelcome() {
+  welcome?.classList.add("is-gone");
+}
 
 function activateView(viewName) {
+  hideWelcome();
   document.querySelectorAll(".tab-btn").forEach((tab) => {
     const active = tab.dataset.view === viewName;
     tab.classList.toggle("active", active);
@@ -18,6 +25,8 @@ window.openPokemon = openPokemon;
 warmSpanishVoices();
 initPokedex();
 initMap();
+if (document.getElementById("mapView").classList.contains("active")) showMap();
+window.setTimeout(hideWelcome, 2200);
 
 document.querySelectorAll(".tab-btn").forEach((button) => {
   button.addEventListener("click", () => activateView(button.dataset.view));

@@ -54,6 +54,12 @@ let searchTimer = 0;
 let loadController = null;
 
 const statusText = document.getElementById("statusText");
+const retryBtn = document.getElementById("retryBtn");
+
+export function setStatus(message, retry = false) {
+  statusText.textContent = message || "";
+  retryBtn.hidden = !retry;
+}
 const caughtCount = document.getElementById("caughtCount");
 const caughtRatio = document.getElementById("caughtRatio");
 const caughtBar = document.getElementById("caughtBar");
@@ -799,7 +805,7 @@ async function loadCatalog() {
   const controller = new AbortController();
   loadController = controller;
   const { signal } = controller;
-  statusText.textContent = "Sincronizando con PokéAPI…";
+  setStatus("Buscando…");
 
   try {
     const head = await fetch("https://pokeapi.co/api/v2/pokemon?limit=1", { signal });
@@ -823,7 +829,7 @@ async function loadCatalog() {
       data.results.forEach(upsertFromIndex);
       catalog = sortCatalog();
       const loaded = Math.min(offset + data.results.length, count);
-      statusText.textContent = `Cargando catálogo ${loaded} / ${count}…`;
+      setStatus("Buscando…");
       requestRender();
       await yieldToMain();
     }
@@ -833,12 +839,10 @@ async function loadCatalog() {
     applyTypes();
     catalog = sortCatalog();
     requestRender();
-    statusText.textContent = `Catálogo completo: ${catalog.length} Pokémon`;
+    setStatus("");
   } catch (error) {
     if (signal.aborted || error.name === "AbortError") return;
-    statusText.textContent = catalog.length > KEY_POKEMON.length
-      ? `Catálogo parcial (${catalog.length} Pokémon). Pulsa Reintentar API.`
-      : "Usando Pokémon clave de respaldo (sin conexión o API lenta).";
+    setStatus(catalog.length > KEY_POKEMON.length ? "Faltan algunos. Prueba otra vez." : "Sin internet.", true);
   }
 }
 
@@ -898,10 +902,10 @@ export function initPokedex() {
     searchTimer = window.setTimeout(startRender, 150);
   });
   typeFilter.addEventListener("change", startRender);
-  document.getElementById("retryBtn").addEventListener("click", loadCatalog);
+  retryBtn.addEventListener("click", loadCatalog);
 
   updateCaughtCounter();
-  statusText.textContent = "Pokémon clave listos. Cargando catálogo completo…";
+  setStatus("Buscando…");
   startRender();
   loadCatalog();
 }

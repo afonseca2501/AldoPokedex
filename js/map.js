@@ -1,4 +1,4 @@
-import { escapeHtml, getCatalog, isCaught, onCaughtChange, onTypesChange, pokemonTypes, titleName } from "./pokedex.js?v=5";
+import { escapeHtml, getCatalog, isCaught, onCaughtChange, onTypesChange, pokemonTypes, setStatus, titleName } from "./pokedex.js?v=6";
 import { paintTypeBadges } from "./types.js?v=5";
 
 const SIGHTINGS = [
@@ -98,7 +98,6 @@ const placedMarkers = [];
 
 const mapElement = document.getElementById("map");
 const layerSelect = document.getElementById("mapLayer");
-const statusText = document.getElementById("statusText");
 const radarBanner = document.getElementById("radarBanner");
 
 const PIN_FALLBACK = `data:image/svg+xml,${encodeURIComponent(
@@ -226,7 +225,7 @@ function createTileLayer(sources, index = 0) {
     if (mapInstance && mapInstance.hasLayer(layer)) mapInstance.removeLayer(layer);
     activeTiles = createTileLayer(sources, index + 1);
     activeTiles.addTo(mapInstance);
-    statusText.textContent = "Una capa del mapa falló. Se está usando el mapa de respaldo.";
+    setStatus("Mapa de respaldo.");
   });
   return layer;
 }
@@ -260,7 +259,7 @@ function resizeMapWhenVisible(attempt = 0) {
     if (attempt < 20) {
       window.setTimeout(() => resizeMapWhenVisible(attempt + 1), 100);
     } else {
-      statusText.textContent = "No se pudo cargar el mapa. La Pokédex sigue disponible.";
+      setStatus("El mapa no cargó. La Pokédex sí.");
     }
     return;
   }
