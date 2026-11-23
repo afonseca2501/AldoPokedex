@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PokéMundo Dex & Mapa</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="styles.css" />
+  <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+  <header>
+    <div class="brand"><span class="led"></span> PokéMundo Dex</div>
+    <div class="tabs" role="tablist">
+      <button class="tab-btn active" type="button" data-view="dexView" role="tab" aria-selected="true">Pokédex</button>
+      <button class="tab-btn" type="button" data-view="mapView" role="tab" aria-selected="false">Mapa Mundial</button>
+    </div>
+  </header>
+
+  <div class="status-bar">
+    <span id="statusText">Preparando Pokémon clave…</span>
+    <div class="progress-block">
+      <div class="progress-label">
+        <span id="caughtCount">Capturados: 0 / 0</span>
+        <span id="caughtRatio">0%</span>
+      </div>
+      <div
+        id="caughtTrack"
+        class="progress-track"
+        role="progressbar"
+        aria-label="Progreso de Pokémon capturados"
+        aria-valuemin="0"
+        aria-valuemax="0"
+        aria-valuenow="0"
+      >
+        <div id="caughtBar" class="progress-bar"></div>
+      </div>
+    </div>
+    <button class="btn-sm" id="retryBtn" type="button">Reintentar API</button>
+  </div>
+
+  <main>
+    <section id="dexView" class="view active">
+      <div class="controls">
+        <input id="searchInput" type="search" placeholder="Buscar por nombre o número (ej. pikachu, 25)…" autocomplete="off" />
+        <select id="typeFilter" aria-label="Filtrar por tipo">
+          <option value="">Todos los tipos</option>
+          <option value="fire">Fuego</option>
+          <option value="water">Agua</option>
+          <option value="grass">Planta</option>
+          <option value="electric">Eléctrico</option>
+          <option value="ice">Hielo</option>
+          <option value="normal">Normal</option>
+          <option value="fighting">Lucha</option>
+          <option value="poison">Veneno</option>
+          <option value="ground">Tierra</option>
+          <option value="flying">Volador</option>
+          <option value="psychic">Psíquico</option>
+          <option value="bug">Bicho</option>
+          <option value="rock">Roca</option>
+          <option value="ghost">Fantasma</option>
+          <option value="dragon">Dragón</option>
+          <option value="dark">Siniestro</option>
+          <option value="steel">Acero</option>
+          <option value="fairy">Hada</option>
+        </select>
+      </div>
+      <div id="pokeGrid" class="grid"></div>
+    </section>
+
+    <section id="mapView" class="view">
+      <div class="map-toolbar">
+        <div>
+          <strong>Explorador Mundial</strong> — Toca un hábitat o activa el radar salvaje.
+        </div>
+        <button class="btn btn-catch" id="radarBtn" type="button">Radar Salvaje</button>
+      </div>
+      <div id="map"></div>
+    </section>
+  </main>
+
+  <div id="modalBackdrop" class="modal-backdrop">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalName">
+      <button class="close-btn" id="closeModal" type="button" aria-label="Cerrar">✕</button>
+      <div class="poke-num" id="modalNum">#000</div>
+      <h2 id="modalName">Pokémon</h2>
+      <div id="modalTypes"></div>
+
+      <div
+        id="pokeStage"
+        class="stage anim-default"
+        role="button"
+        tabindex="0"
+        aria-label="Reproducir el grito del Pokémon"
+      >
+        <img id="modalImg" alt="" width="135" height="135" />
+      </div>
+      <div class="hint">Toca al Pokémon para escuchar su grito</div>
+
+      <p id="modalDesc" class="desc">Cargando descripción…</p>
+
+      <div class="actions">
+        <button class="btn btn-voice" id="speakBtn" type="button">Escuchar explicación</button>
+        <button class="btn btn-catch" id="catchBtn" type="button">Marcar capturado</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
