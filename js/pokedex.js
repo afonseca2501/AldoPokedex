@@ -70,6 +70,10 @@ let modalToken = 0;
 let speakToken = 0;
 let renderJob = 0;
 let renderQueued = false;
+let renderLimit = RENDER_CHUNK;
+let revealQueued = false;
+let listObserver = null;
+let sentinel = null;
 let searchTimer = 0;
 let loadController = null;
 
@@ -277,6 +281,44 @@ function emptyMessage() {
   return note;
 }
 
+function ensureSentinel() {
+  if (sentinel) return sentinel;
+  sentinel = document.createElement("div");
+  sentinel.className = "list-sentinel";
+  sentinel.setAttribute("aria-hidden", "true");
+  if (typeof IntersectionObserver === "undefined") {
+    window.addEventListener("scroll", maybeRevealMore, { passive: true });
+    return sentinel;
+  }
+  listObserver = new IntersectionObserver((entries) => {
+    if (entries.some((entry) => entry.isIntersecting)) maybeRevealMore();
+  }, { root: null, rootMargin: "0px 0px 600px 0px", threshold: 0 });
+  listObserver.observe(sentinel);
+  return sentinel;
+}
+
+function mountSentinel() {
+  pokeGrid.append(ensureSentinel());
+}
+
+function sentinelInRange() {
+  if (!sentinel || !sentinel.isConnected) return false;
+  const rect = sentinel.getBoundingClientRect();
+  return rect.top <= window.innerHeight + 600 && rect.bottom >= 0;
+}
+
+function maybeRevealMore() {
+  if (revealQueued) return;
+  revealQueued = true;
+  requestAnimationFrame(() => {
+    revealQueued = false;
+    const items = getFiltered();
+    if (renderLimit >= items.length || !sentinelInRange()) return;
+    renderLimit = Math.min(items.length, renderLimit + RENDER_CHUNK);
+    paintVisible();
+  });
+}
+
 function mergeChunked(items, job) {
   let index = 0;
   let cursor = pokeGrid.querySelector(".poke-card");
@@ -290,29 +332,43 @@ function mergeChunked(items, job) {
         cursor = nextCard(cursor);
         continue;
       }
-      pokeGrid.insertBefore(createCard(poke), cursor);
+      const anchor = cursor || (sentinel && sentinel.isConnected ? sentinel : null);
+      pokeGrid.insertBefore(createCard(poke), anchor);
       created += 1;
     }
-    if (index < items.length) requestAnimationFrame(step);
+    if (index < items.length) {
+      requestAnimationFrame(step);
+      return;
+    }
+    if (job !== renderJob) return;
+    mountSentinel();
+    maybeRevealMore();
   };
   step();
 }
 
-function startRender() {
-  window.clearTimeout(searchTimer);
+function paintVisible() {
   const job = ++renderJob;
   const items = getFiltered();
   if (!items.length) {
     pokeGrid.replaceChildren(emptyMessage());
     return;
   }
-  const wanted = new Set(items.map((poke) => poke.id));
+  const slice = items.slice(0, renderLimit);
+  const wanted = new Set(slice.map((poke) => poke.id));
   [...pokeGrid.children].forEach((child) => {
+    if (child === sentinel) return;
     if (!child.classList.contains("poke-card") || !wanted.has(Number(child.dataset.id))) {
       child.remove();
     }
   });
-  mergeChunked(items, job);
+  mergeChunked(slice, job);
+}
+
+function startRender() {
+  window.clearTimeout(searchTimer);
+  renderLimit = RENDER_CHUNK;
+  requestRender();
 }
 
 function requestRender() {
@@ -320,7 +376,7 @@ function requestRender() {
   renderQueued = true;
   requestAnimationFrame(() => {
     renderQueued = false;
-    startRender();
+    paintVisible();
   });
 }
 

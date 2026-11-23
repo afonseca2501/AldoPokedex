@@ -21,6 +21,7 @@ AldoPokedex/
 ## Comportamiento que se conserva
 
 - Los seis Pokémon clave aparecen al instante. El catálogo completo de PokéAPI entra en páginas de 100, con respaldo local si la red falla.
+- La cuadrícula pinta lotes de 36 tarjetas. Un centinela al final, observado con 600 px de margen inferior, pide el siguiente lote antes de llegar al fondo. Cada tarjeta solo carga su imagen (`loading="lazy"` y `decoding="async"`). La especie y la línea evolutiva se piden al abrir la ficha.
 - Las imágenes son el arte oficial o el sprite frontal. La animación depende del tipo (fuego, agua, planta, eléctrico u otra).
 - La barra `Capturados: N / total` se guarda en `localStorage` con la clave `pokemundo_caught`.
 - El grito y la reacción del escenario solo ocurren al tocar o hacer clic sobre el Pokémon dentro de la ficha. Abrir la tarjeta no reproduce sonido. «Escuchar explicación» solo lee el texto en español.
@@ -62,3 +63,4 @@ Abre http://127.0.0.1:8765/
 5. En Mapa Mundial cambia entre Calles y Satélite, abre un marcador y comprueba bandera, país y «Ver ficha» (sin grito). Pulsa Radar Salvaje y revisa el aviso superior.
 6. Vuelve a Pokédex y regresa al mapa: el mapa ocupa todo el recuadro.
 7. Abre Bulbasaur: la línea muestra tres etapas y «Actual» en la primera. Toca Ivysaur: cambia la ficha sin grito. Abre Kyogre: aparece el aviso de que no tiene evoluciones.
+8. En la Pokédex baja con el scroll: los siguientes Pokémon aparecen antes de tocar el fondo. Abrir uno sigue en silencio y el grito solo suena al tocar su imagen.

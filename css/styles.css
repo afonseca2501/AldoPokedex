@@ -144,6 +144,11 @@ input:focus, select:focus, button:focus-visible {
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 14px;
 }
+.list-sentinel {
+  grid-column: 1 / -1;
+  height: 1px;
+  pointer-events: none;
+}
 
 .poke-card {
   appearance: none;
