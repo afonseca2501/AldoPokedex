@@ -28,6 +28,13 @@ AldoPokedex/
 - La cabecera muestra «¡Bienvenido, Aldo!».
 - Leaflet recalcula el tamaño al cambiar de pestaña, al redimensionar la ventana y si cambia el contenedor.
 
+## Línea evolutiva
+
+- La ficha muestra «Línea evolutiva» con mini-cards: arte oficial, número, nombre, marca «Actual» y ✓ si ese Pokémon está capturado.
+- Al abrir la ficha se consulta PokéAPI (`pokemon-species` y después `evolution-chain`). La cadena queda en memoria, así que el resto de la familia no vuelve a pedirla.
+- Mientras llega se muestra «Cargando evolución…». Si no evoluciona, el texto es «Este Pokémon no tiene evoluciones.» Si la red falla, hay un aviso breve.
+- Tocar otra mini-card abre esa ficha en silencio. El grito sigue sonando solo al tocar la imagen grande del modal. «Escuchar explicación» lee únicamente la descripción en español.
+
 ## Mapa Mundial
 
 - Capas sin claves privadas: Calles con el mapa de calles de Esri y Satélite con Esri World Imagery. Si un servidor falla, Calles pasa a OpenStreetMap y Satélite al segundo servidor de Esri.
@@ -54,3 +61,4 @@ Abre http://127.0.0.1:8765/
 4. Marca capturado y recarga: la barra y la marca siguen ahí.
 5. En Mapa Mundial cambia entre Calles y Satélite, abre un marcador y comprueba bandera, país y «Ver ficha» (sin grito). Pulsa Radar Salvaje y revisa el aviso superior.
 6. Vuelve a Pokédex y regresa al mapa: el mapa ocupa todo el recuadro.
+7. Abre Bulbasaur: la línea muestra tres etapas y «Actual» en la primera. Toca Ivysaur: cambia la ficha sin grito. Abre Kyogre: aparece el aviso de que no tiene evoluciones.

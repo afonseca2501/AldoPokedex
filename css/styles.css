@@ -295,8 +295,10 @@ input:focus, select:focus, button:focus-visible {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 20px;
-  max-width: 460px;
+  max-width: 560px;
   width: 100%;
+  max-height: min(92vh, 900px);
+  overflow-y: auto;
   padding: 22px;
   position: relative;
   text-align: center;
@@ -366,7 +368,84 @@ input:focus, select:focus, button:focus-visible {
   50% { transform: rotate(4deg); }
 }
 
-.desc { color: #cbd5e1; font-size: 0.92rem; line-height: 1.45; margin: 10px 0 16px; }
+.desc { color: #cbd5e1; font-size: 0.92rem; line-height: 1.45; margin: 10px 0 14px; }
+
+.evo-block { text-align: left; margin: 0 0 16px; }
+.evo-block h3 {
+  font-size: 0.78rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #fdba74;
+  margin-bottom: 8px;
+}
+.evo-status { color: var(--muted); font-size: 0.88rem; line-height: 1.4; }
+.evo-status[hidden],
+.evo-track[hidden] { display: none !important; }
+.evo-track {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 2px 2px 8px;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+}
+.evo-stage { display: flex; gap: 8px; flex: none; }
+.evo-arrow {
+  flex: none;
+  color: #fb923c;
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+.evo-card {
+  appearance: none;
+  flex: none;
+  width: 112px;
+  min-height: 148px;
+  scroll-snap-align: start;
+  background: #0b1b33;
+  border: 2px solid rgba(29, 78, 216, 0.7);
+  border-radius: 14px;
+  padding: 8px 8px 10px;
+  cursor: pointer;
+  text-align: center;
+  color: var(--text);
+}
+.evo-card.is-current {
+  border-color: #f97316;
+  box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.35);
+}
+.evo-card img {
+  width: 76px;
+  height: 76px;
+  object-fit: contain;
+  pointer-events: none;
+}
+.evo-id { font-size: 0.7rem; color: var(--muted); font-weight: 800; }
+.evo-name {
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-transform: capitalize;
+  line-height: 1.2;
+  word-break: break-word;
+}
+.evo-marks {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-height: 18px;
+  margin-top: 4px;
+}
+.evo-now,
+.evo-got {
+  font-size: 0.66rem;
+  font-weight: 800;
+  border-radius: 999px;
+  padding: 1px 6px;
+}
+.evo-now { background: #f97316; color: #0f172a; }
+.evo-got { background: var(--ok); color: #052e16; }
 .actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
 .btn {
   border: none;

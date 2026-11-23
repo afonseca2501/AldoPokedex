@@ -56,7 +56,11 @@ const KEY_POKEMON = [
 
 const byId = new Map(KEY_POKEMON.map((poke) => [poke.id, poke]));
 const typeById = new Map();
-const descJobs = new Map();
+const profileJobs = new Map();
+const speciesJobs = new Map();
+const chainJobs = new Map();
+const chainCache = new Map();
+const chainBySpecies = new Map();
 
 let catalog = sortCatalog();
 let caught = loadCaught();
@@ -92,6 +96,11 @@ function spriteUrl(id) {
 
 function idFromUrl(url) {
   const match = String(url || "").match(/\/pokemon\/(\d+)\/?$/);
+  return match ? Number(match[1]) : 0;
+}
+
+function speciesIdFromUrl(url) {
+  const match = String(url || "").match(/\/pokemon-species\/(\d+)\/?$/);
   return match ? Number(match[1]) : 0;
 }
 
@@ -339,38 +348,80 @@ function playCryFor(poke) {
   playCry(poke);
 }
 
-async function fetchSpanishDescription(poke) {
-  let speciesUrl = `https://pokeapi.co/api/v2/pokemon-species/${poke.id}/`;
-  try {
-    const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${poke.id}/`);
-    if (response.ok) {
-      const data = await response.json();
-      if (data.name) poke.name = data.name;
-      const cries = [data.cries?.latest, data.cries?.legacy].filter(Boolean);
-      if (cries.length) poke.cryUrls = cries;
-      const types = (data.types || []).map((entry) => entry.type?.name).filter(Boolean);
-      if (types.length) poke.types = types;
-      if (data.species?.url) speciesUrl = data.species.url;
-    }
-  } catch {
-    // La ficha sigue usable con el arte estático y el resumen en español.
+function fetchJson(url) {
+  return fetch(url).then((response) => (response.ok ? response.json() : null)).catch(() => null);
+}
+
+function loadSpeciesJson(id) {
+  if (!id) return Promise.resolve(null);
+  if (speciesJobs.has(id)) return speciesJobs.get(id);
+  const job = fetchJson(`https://pokeapi.co/api/v2/pokemon-species/${id}/`);
+  speciesJobs.set(id, job);
+  job.then((data) => {
+    if (!data) speciesJobs.delete(id);
+  });
+  return job;
+}
+
+function flattenChain(node, depth, stages) {
+  if (!node?.species) return;
+  const id = speciesIdFromUrl(node.species.url);
+  if (id) stages.push({ id, name: node.species.name, depth });
+  (node.evolves_to || []).forEach((next) => flattenChain(next, depth + 1, stages));
+}
+
+function rememberChain(stages) {
+  stages.forEach((stage) => chainBySpecies.set(stage.id, stages));
+  return stages;
+}
+
+function loadChain(url) {
+  if (!url) return Promise.resolve(null);
+  if (chainCache.has(url)) return Promise.resolve(chainCache.get(url));
+  if (chainJobs.has(url)) return chainJobs.get(url);
+  const job = fetchJson(url)
+    .then((data) => {
+      if (!data?.chain) return null;
+      const stages = [];
+      flattenChain(data.chain, 0, stages);
+      if (!stages.length) return null;
+      chainCache.set(url, stages);
+      return rememberChain(stages);
+    })
+    .finally(() => chainJobs.delete(url));
+  chainJobs.set(url, job);
+  return job;
+}
+
+async function attachSpecies(poke) {
+  if (poke.evolutionChainUrl && poke.speciesLoaded && poke.descLang === "es") return;
+  const pokemon = await fetchJson(`https://pokeapi.co/api/v2/pokemon/${poke.id}/`);
+  if (pokemon) {
+    if (pokemon.name) poke.name = pokemon.name;
+    const cries = [pokemon.cries?.latest, pokemon.cries?.legacy].filter(Boolean);
+    if (cries.length) poke.cryUrls = cries;
+    const types = (pokemon.types || []).map((entry) => entry.type?.name).filter(Boolean);
+    if (types.length) poke.types = types;
+    poke.speciesId = speciesIdFromUrl(pokemon.species?.url) || poke.id;
+  } else if (!poke.speciesId) {
+    poke.speciesId = poke.id;
   }
 
-  const response = await fetch(speciesUrl);
-  if (!response.ok) return;
-  const data = await response.json();
-  const entry = (data.flavor_text_entries || []).find((item) => item.language?.name === "es");
-  if (!entry?.flavor_text) return;
-  poke.desc = cleanFlavor(entry.flavor_text);
-  poke.descLang = "es";
+  const species = await loadSpeciesJson(poke.speciesId || poke.id);
+  if (!species) return;
+  if (species.evolution_chain?.url) poke.evolutionChainUrl = species.evolution_chain.url;
+  const entry = (species.flavor_text_entries || []).find((item) => item.language?.name === "es");
+  if (entry?.flavor_text && !(poke.curated && poke.desc)) {
+    poke.desc = cleanFlavor(entry.flavor_text);
+    poke.descLang = "es";
+  }
   poke.speciesLoaded = true;
 }
 
-function ensureSpanishDescription(poke) {
-  if (poke.curated && poke.desc) return Promise.resolve();
-  if (poke.descLang === "es" && poke.speciesLoaded) return Promise.resolve();
-  if (descJobs.has(poke.id)) return descJobs.get(poke.id);
-  const job = fetchSpanishDescription(poke)
+function ensureProfile(poke) {
+  if (poke.evolutionChainUrl && poke.speciesLoaded && poke.descLang === "es") return Promise.resolve();
+  if (profileJobs.has(poke.id)) return profileJobs.get(poke.id);
+  const job = attachSpecies(poke)
     .catch(() => {})
     .finally(() => {
       if (!poke.desc || poke.descLang !== "es") {
@@ -378,9 +429,136 @@ function ensureSpanishDescription(poke) {
         poke.descLang = "es";
       }
       poke.speciesLoaded = true;
+      profileJobs.delete(poke.id);
     });
-  descJobs.set(poke.id, job);
+  profileJobs.set(poke.id, job);
   return job;
+}
+
+function ensureSpanishDescription(poke) {
+  return ensureProfile(poke);
+}
+
+const evoStatus = document.getElementById("evoStatus");
+const evoTrack = document.getElementById("evoTrack");
+let visibleChain = null;
+
+function showEvolutionLoading() {
+  visibleChain = null;
+  evoStatus.hidden = false;
+  evoStatus.textContent = "Cargando evolución…";
+  evoTrack.hidden = true;
+  evoTrack.replaceChildren();
+}
+
+function currentStageId(poke, stages) {
+  if (stages.some((stage) => stage.id === poke.id)) return poke.id;
+  if (poke.speciesId && stages.some((stage) => stage.id === poke.speciesId)) return poke.speciesId;
+  return poke.id;
+}
+
+function createEvoCard(stage, isCurrent) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "evo-card";
+  button.dataset.id = String(stage.id);
+  if (isCurrent) button.classList.add("is-current");
+  if (caught.has(stage.id)) button.classList.add("is-caught");
+  const label = [
+    formatId(stage.id),
+    titleName(stage.name),
+    isCurrent ? "actual" : "",
+    caught.has(stage.id) ? "capturado" : "",
+  ].filter(Boolean).join(", ");
+  button.setAttribute("aria-label", label);
+  if (isCurrent) button.setAttribute("aria-current", "true");
+
+  const image = document.createElement("img");
+  image.alt = "";
+  image.width = 76;
+  image.height = 76;
+  setSprite(image, stage.id);
+
+  const number = document.createElement("div");
+  number.className = "evo-id";
+  number.textContent = formatId(stage.id);
+
+  const name = document.createElement("div");
+  name.className = "evo-name";
+  name.textContent = displayName(stage.name);
+
+  const marks = document.createElement("div");
+  marks.className = "evo-marks";
+  if (isCurrent) {
+    const now = document.createElement("span");
+    now.className = "evo-now";
+    now.textContent = "Actual";
+    marks.append(now);
+  }
+  if (caught.has(stage.id)) {
+    const got = document.createElement("span");
+    got.className = "evo-got";
+    got.textContent = "✓";
+    marks.append(got);
+  }
+
+  button.append(image, number, name, marks);
+  button.addEventListener("click", () => {
+    if (currentPoke && currentPoke.id === stage.id) return;
+    openPokemon(stage.id);
+  });
+  return button;
+}
+
+function renderEvolution(stages, poke, center) {
+  visibleChain = stages;
+  const previousScroll = evoTrack.scrollLeft;
+  if (!stages) {
+    evoTrack.hidden = true;
+    evoTrack.replaceChildren();
+    evoStatus.hidden = false;
+    evoStatus.textContent = "No se pudo cargar la línea evolutiva.";
+    return;
+  }
+  if (stages.length < 2) {
+    evoTrack.hidden = true;
+    evoTrack.replaceChildren();
+    evoStatus.hidden = false;
+    evoStatus.textContent = "Este Pokémon no tiene evoluciones.";
+    return;
+  }
+
+  const groups = [];
+  stages.forEach((stage) => {
+    if (!groups[stage.depth]) groups[stage.depth] = [];
+    groups[stage.depth].push(stage);
+  });
+  const activeId = currentStageId(poke, stages);
+  evoStatus.hidden = true;
+  evoTrack.hidden = false;
+  evoTrack.replaceChildren();
+  groups.forEach((group, index) => {
+    if (!group) return;
+    if (index > 0) {
+      const arrow = document.createElement("span");
+      arrow.className = "evo-arrow";
+      arrow.setAttribute("aria-hidden", "true");
+      arrow.textContent = "→";
+      evoTrack.append(arrow);
+    }
+    const wrap = document.createElement("div");
+    wrap.className = "evo-stage";
+    group.forEach((stage) => wrap.append(createEvoCard(stage, stage.id === activeId)));
+    evoTrack.append(wrap);
+  });
+  if (!center) {
+    evoTrack.scrollLeft = previousScroll;
+    return;
+  }
+  const current = evoTrack.querySelector(".is-current");
+  if (!current) return;
+  const delta = current.getBoundingClientRect().left - evoTrack.getBoundingClientRect().left;
+  evoTrack.scrollLeft += delta - 8;
 }
 
 function refreshModal(poke) {
@@ -435,12 +613,18 @@ export function openPokemon(id) {
   setSprite(image, poke.id);
   pokeStage.className = stageClass(poke.types);
   catchBtn.textContent = caught.has(poke.id) ? "Capturado ✓" : "Marcar capturado";
+  const knownChain = (poke.evolutionChainUrl && chainCache.get(poke.evolutionChainUrl)) || chainBySpecies.get(poke.id);
+  if (knownChain) renderEvolution(knownChain, poke, true);
+  else showEvolutionLoading();
   modalBackdrop.classList.add("open");
   stopAllAudio();
 
-  ensureSpanishDescription(poke).then(() => {
+  ensureProfile(poke).then(async () => {
     if (token !== modalToken) return;
     refreshModal(poke);
+    const stages = await loadChain(poke.evolutionChainUrl);
+    if (token !== modalToken) return;
+    renderEvolution(stages, poke, true);
   });
 }
 
@@ -595,6 +779,7 @@ export function initPokedex() {
     updateCaughtCounter();
     markCaughtTag(currentPoke.id);
     catchBtn.textContent = caught.has(currentPoke.id) ? "Capturado ✓" : "Marcar capturado";
+    if (visibleChain) renderEvolution(visibleChain, currentPoke, false);
   });
 
   document.getElementById("closeModal").addEventListener("click", closeModal);
