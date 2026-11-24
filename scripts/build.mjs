@@ -3,7 +3,7 @@ import { cpSync, existsSync, mkdirSync, rmSync } from "node:fs";
 import { TYPE_ORDER, getType, weaknessesOf } from "../js/types.js";
 
 const OUTPUT = "dist";
-const SITE_FILES = ["index.html", "css", "js", "icons", "image_aldo.webp", "manifest.json", "sw.js"];
+const SITE_FILES = ["index.html", "css", "js", "icons", "image_aldo.webp", "Aldo2.webp", "manifest.json", "sw.js"];
 const OPTIONAL_FILES = ["modal"];
 
 const files = [

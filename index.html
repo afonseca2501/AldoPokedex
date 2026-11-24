@@ -13,7 +13,7 @@
   <link rel="icon" href="/icons/icon-192.png" type="image/png" />
   <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="css/styles.css?v=24" />
+  <link rel="stylesheet" href="css/styles.css?v=29" />
   <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body class="hello-open">
@@ -120,6 +120,8 @@
       <div id="teamBody" hidden>
         <div class="buddy-panel">
           <p class="buddy-kicker">Tu Pokémon principal</p>
+          <div class="buddy-split">
+          <div class="buddy-card">
           <div
             id="buddyStage"
             class="buddy-stage anim-default"
@@ -133,20 +135,72 @@
           <p class="buddy-hint">Toca a tu Pokémon para escuchar su grito</p>
           <h2 id="buddyName">Pokémon</h2>
           <div id="buddyTypes" class="poke-types"></div>
-          <p id="feedMessage" class="feed-message" hidden role="status"></p>
-          <div class="food-row" role="group" aria-label="Darle comida">
+          <p id="careLevel" class="care-level">Nivel 1</p>
+          <div class="care-meters">
+            <div class="care-meter">
+              <span class="care-label" id="energyLabel">Energía</span>
+              <div id="energyTrack" class="care-track" role="progressbar" aria-labelledby="energyLabel" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                <div id="energyBar" class="care-bar care-bar-energy"></div>
+              </div>
+            </div>
+            <div class="care-meter">
+              <span class="care-label" id="levelLabel">Progreso</span>
+              <div id="levelTrack" class="care-track" role="progressbar" aria-labelledby="levelLabel" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                <div id="levelBar" class="care-bar care-bar-level"></div>
+              </div>
+            </div>
+          </div>
+          <div class="feed-slot">
+            <p id="feedMessage" class="feed-message" hidden role="status"></p>
+          </div>
+          <p class="food-menu-title">Menú para comer</p>
+          <div class="food-row" role="group" aria-label="Menú para comer">
             <button class="food-btn" type="button" data-food="berry">
               <span class="food-emoji" aria-hidden="true">🍓</span>
               Baya
+              <span class="food-note">Frescura</span>
+            </button>
+            <button class="food-btn" type="button" data-food="fruit">
+              <span class="food-emoji" aria-hidden="true">🍎</span>
+              Fruta
+              <span class="food-note">Vitaminas</span>
+            </button>
+            <button class="food-btn" type="button" data-food="veggie">
+              <span class="food-emoji" aria-hidden="true">🥕</span>
+              Verdura
+              <span class="food-note">Fuerza</span>
             </button>
             <button class="food-btn" type="button" data-food="cookie">
               <span class="food-emoji" aria-hidden="true">🍪</span>
               Galleta
+              <span class="food-note">Dulce</span>
+            </button>
+            <button class="food-btn" type="button" data-food="snack">
+              <span class="food-emoji" aria-hidden="true">🍿</span>
+              Snack
+              <span class="food-note">Antojo</span>
             </button>
             <button class="food-btn" type="button" data-food="juice">
               <span class="food-emoji" aria-hidden="true">🧃</span>
               Jugo
+              <span class="food-note">Energía</span>
             </button>
+            <button class="food-btn" type="button" data-food="water">
+              <span class="food-emoji" aria-hidden="true">💧</span>
+              Agua
+              <span class="food-note">Hidrata</span>
+            </button>
+            <button class="food-btn" type="button" data-food="shake">
+              <span class="food-emoji" aria-hidden="true">🥤</span>
+              Batido
+              <span class="food-note">Recarga</span>
+            </button>
+          </div>
+          </div>
+          <figure class="aldo-figure" id="aldoFigure">
+            <img id="aldoBuddy" alt="Aldo Fonseca" width="320" height="560" />
+            <p id="aldoMiss" class="aldo-miss" hidden>Aldo vuelve en un momento.</p>
+          </figure>
           </div>
         </div>
         <h3 class="team-title">Tu colección</h3>
@@ -248,6 +302,6 @@
     </div>
   </div>
 
-  <script type="module" src="js/main.js?v=18"></script>
+  <script type="module" src="js/main.js?v=22"></script>
 </body>
 </html>
