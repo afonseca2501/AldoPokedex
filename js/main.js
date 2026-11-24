@@ -1,7 +1,7 @@
 import { warmSpanishVoices } from "./audio.js";
-import { showMap, initMap } from "./map.js?v=7";
-import { initPokedex, openPokemon } from "./pokedex.js?v=7";
-import { startWelcome } from "./welcome.js?v=7";
+import { showMap, initMap } from "./map.js?v=8";
+import { initPokedex, openPokemon } from "./pokedex.js?v=8";
+import { startWelcome } from "./welcome.js?v=8";
 
 const welcome = document.getElementById("welcome");
 

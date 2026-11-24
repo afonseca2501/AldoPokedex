@@ -43,6 +43,7 @@ let caught = loadCaught();
 let totalExpected = 0;
 let currentPoke = null;
 let modalToken = 0;
+let modalSpriteToken = 0;
 let speakToken = 0;
 let renderJob = 0;
 let renderQueued = false;
@@ -265,6 +266,62 @@ function setSprite(img, id) {
   img.src = artworkUrl(id);
 }
 
+function animatedSpriteUrls(poke) {
+  const id = Number(poke.id);
+  const urls = [
+    `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/${id}.gif`,
+    `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${id}.gif`,
+  ];
+  const slug = String(poke.name || "").toLowerCase();
+  if (/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) {
+    urls.push(`https://play.pokemonshowdown.com/sprites/ani/${slug}.gif`);
+  }
+  return urls;
+}
+
+function probeImage(url, ms) {
+  return new Promise((resolve) => {
+    const probe = new Image();
+    let done = false;
+    const finish = (ok) => {
+      if (done) return;
+      done = true;
+      resolve(ok);
+    };
+    const timer = window.setTimeout(() => finish(false), ms);
+    probe.onload = () => {
+      window.clearTimeout(timer);
+      finish(true);
+    };
+    probe.onerror = () => {
+      window.clearTimeout(timer);
+      finish(false);
+    };
+    probe.src = url;
+  });
+}
+
+function showModalSprite(img, poke) {
+  const token = ++modalSpriteToken;
+  setSprite(img, poke.id);
+  const urls = animatedSpriteUrls(poke);
+  (async () => {
+    for (const url of urls) {
+      if (token !== modalSpriteToken) return;
+      const ready = await probeImage(url, 2500);
+      if (token !== modalSpriteToken) return;
+      if (!ready) continue;
+      img.dataset.step = "gif";
+      img.onerror = () => {
+        if (token !== modalSpriteToken) return;
+        setSprite(img, poke.id);
+      };
+      img.src = url;
+      return;
+    }
+  })();
+}
+
 function createCard(poke) {
   const card = document.createElement("button");
   card.type = "button";
@@ -442,8 +499,10 @@ function stageClass(types) {
 }
 
 function pulseStage() {
+  pokeStage.classList.remove("react");
+  void pokeStage.offsetWidth;
   pokeStage.classList.add("react");
-  window.setTimeout(() => pokeStage.classList.remove("react"), 350);
+  window.setTimeout(() => pokeStage.classList.remove("react"), 560);
 }
 
 function playCryFor(poke) {
@@ -723,7 +782,7 @@ export function openPokemon(id) {
 
   const image = document.getElementById("modalImg");
   image.alt = titleName(poke.name);
-  setSprite(image, poke.id);
+  showModalSprite(image, poke);
   pokeStage.className = stageClass(poke.types);
   catchBtn.textContent = caught.has(poke.id) ? "¡Atrapado!" : "¡Atrapar!";
   const knownChain = (poke.evolutionChainUrl && chainCache.get(poke.evolutionChainUrl)) || chainBySpecies.get(poke.id);

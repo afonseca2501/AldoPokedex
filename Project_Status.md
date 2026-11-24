@@ -22,10 +22,10 @@ AldoPokedex/
 
 - Los seis Pokémon clave aparecen al instante. El catálogo completo de PokéAPI entra en páginas de 100, con respaldo local si la red falla.
 - La cuadrícula pinta lotes de 36 tarjetas. Un centinela al final, observado con 600 px de margen inferior, pide el siguiente lote antes de llegar al fondo. Cada tarjeta solo carga su imagen (`loading="lazy"` y `decoding="async"`). La especie y la línea evolutiva se piden al abrir la ficha.
-- Las imágenes son el arte oficial o el sprite frontal. La animación depende del tipo (fuego, agua, planta, eléctrico u otra).
+- La cuadrícula, el mapa y las mini-cartas usan el arte oficial o el sprite frontal, imágenes estables para que el scroll siga ligero. En la ficha grande se intenta primero el sprite animado (Showdown de PokéAPI, luego la versión animada de Blanco y Negro y, si hay nombre, el GIF de Pokémon Showdown). Si no existe, tarda más de 2,5 s o falla, se queda el arte oficial y después el sprite frontal, sin un icono de imagen rota.
 - La barra se guarda en `localStorage` con la clave `pokemundo_caught`. El texto principal es «¡Llevas N!» y el total fino queda al lado.
 - Los tipos usan sus colores clásicos en tarjetas, ficha y línea evolutiva. Los botones de la ficha dicen «Escuchar» y «¡Atrapar!». La X de la ficha se queda visible al bajar.
-- El grito y la reacción del escenario solo ocurren al tocar o hacer clic sobre el Pokémon dentro de la ficha. Abrir la tarjeta no reproduce sonido. «Escuchar explicación» solo lee el texto en español.
+- El grito y un salto de reacción solo ocurren al tocar o hacer clic sobre el Pokémon dentro de la ficha. Abrir la tarjeta no reproduce sonido. «Escuchar» solo lee el texto en español.
 - La cabecera es azul profundo y eléctrico, con acentos naranja en la pestaña activa, el botón de explicación y la barra de capturados.
 - La cabecera muestra «¡Bienvenido, Aldo!».
 - La X de la ficha y la de los popups del mapa miden 42×42 px, con fondo naranja, borde claro, aspa blanca gruesa y sombra. «Escuchar explicación», «Marcar capturado», «Radar Salvaje», «Ver ficha» y el selector de capa son más grandes, con borde grueso y un estado presionado marcado.
@@ -60,7 +60,7 @@ Abre http://127.0.0.1:8765/
 ## Qué probar primero
 
 1. Los seis clave salen al momento y luego el texto pasa a «Catálogo completo».
-2. Abre un Pokémon desde la lista: la ficha aparece en silencio. Toca la imagen y entonces suena el grito. «Escuchar» solo lee en español. «¡Atrapar!» suma uno a «¡Llevas N!».
+2. Abre un Pokémon desde la lista: la ficha aparece en silencio y, si existe, el dibujo grande pasa al sprite animado. Si no existe, se queda la imagen oficial. Toca la imagen: suena el grito y el Pokémon da un salto. «Escuchar» solo lee en español. «¡Atrapar!» suma uno a «¡Llevas N!».
 3. Confirma el encabezado azul, el texto «¡Bienvenido, Aldo!» y la barra de capturados en naranja.
 4. Marca capturado y recarga: la barra y la marca siguen ahí.
 5. En Mapa Mundial toca un marcador: el mapa se acerca, ese Pokémon crece, y ves bandera, país y «Ver ficha», sin grito. Si ya lo atrapaste, el marcador lleva una pokébola.

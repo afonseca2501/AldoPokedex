@@ -576,7 +576,13 @@ input:focus, select:focus, button:focus-visible {
 .anim-electric img { animation: buzzElec 0.9s infinite ease-in-out; }
 .anim-grass img { animation: swayGrass 2s infinite ease-in-out; }
 .anim-default img { animation: breatheDefault 2s infinite ease-in-out; }
-.react img { transform: scale(1.2) rotate(-5deg) !important; }
+.react img { animation: spriteReact 0.55s ease !important; }
+@keyframes spriteReact {
+  0% { transform: scale(1) rotate(0deg) translateY(0); }
+  30% { transform: scale(1.28) rotate(-8deg) translateY(-16px); }
+  60% { transform: scale(1.08) rotate(6deg) translateY(0); }
+  100% { transform: scale(1) rotate(0deg) translateY(0); }
+}
 
 @keyframes breatheDefault {
   0%, 100% { transform: scale(1); }
