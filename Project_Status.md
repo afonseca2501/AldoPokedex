@@ -7,12 +7,17 @@ Estado: base modular lista para seguir agregando funciones.
 ```text
 AldoPokedex/
 ├── index.html
+├── manifest.json     # app instalable, ventana sin barra del navegador
+├── sw.js             # no guarda copias viejas de la app
+├── icons/            # íconos PNG de la Pokébola
+├── image_aldo.webp
 ├── css/
 │   └── styles.css
 ├── js/
 │   ├── main.js       # pestañas y arranque
 │   ├── pokedex.js    # catálogo, búsqueda, filtros, capturas y ficha
 │   ├── audio.js      # grito del Pokémon y lectura en español, separados
+│   ├── welcome.js    # saludo de Aldo y precarga de sprites
 │   └── map.js        # mapa Leaflet, capas, hábitats y radar
 ├── Project_Status.md
 └── .cursorrules
@@ -46,6 +51,12 @@ AldoPokedex/
 - El popup y el radar muestran la bandera grande, el código del país como respaldo, el nombre del país y un botón para abrir la ficha. Abrir la ficha no reproduce el grito.
 - Radar Salvaje elige otro Pokémon, lo dibuja con su imagen y mueve un poco las coordenadas dentro de un país de la lista.
 
+## App instalable
+
+- `manifest.json` se llama AldoPokedex, abre en `standalone` desde `/` y usa azul `#1d4ed8` con fondo `#0f172a`.
+- Los íconos PNG están en `icons/`: 192, 512, una versión con margen para máscara y el de iOS.
+- `sw.js` no guarda `index.html`, `css` ni `js`. PokéAPI, los mapas y el audio siguen yendo a la red.
+
 ## Arrancar en local
 
 Hay que usar un servidor. Los módulos no cargan si se abre el archivo directo.
@@ -56,6 +67,8 @@ python3 -m http.server 8765
 ```
 
 Abre http://127.0.0.1:8765/
+
+En Chrome, con el sitio abierto, usa el icono de instalar de la barra de direcciones o el menú (Instalar página como app). La ventana queda sin pestañas ni dirección.
 
 ## Qué probar primero
 

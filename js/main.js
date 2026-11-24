@@ -33,3 +33,7 @@ window.setTimeout(hideWelcome, 2200);
 document.querySelectorAll(".tab-btn").forEach((button) => {
   button.addEventListener("click", () => activateView(button.dataset.view));
 });
+
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/sw.js").catch(() => {});
+}
