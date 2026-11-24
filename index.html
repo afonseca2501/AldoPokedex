@@ -13,7 +13,7 @@
   <link rel="icon" href="/icons/icon-192.png" type="image/png" />
   <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="css/styles.css?v=12" />
+  <link rel="stylesheet" href="css/styles.css?v=19" />
   <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body class="hello-open">
@@ -106,46 +106,70 @@
   <div id="modalBackdrop" class="modal-backdrop">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalName">
       <button class="close-btn" id="closeModal" type="button" aria-label="Cerrar">✕</button>
-      <div class="poke-num" id="modalNum">#000</div>
-      <h2 id="modalName">Pokémon</h2>
-      <div id="modalTypes"></div>
-
-      <section class="weak-block" aria-labelledby="weakLabel">
-        <p id="weakLabel" class="weak-label">Débil contra</p>
-        <div id="weakTypes" class="weak-types"></div>
-        <p id="weakNone" class="weak-none" hidden>¡Ninguno!</p>
-      </section>
-
-      <div
-        id="pokeStage"
-        class="stage anim-default"
-        role="button"
-        tabindex="0"
-        aria-label="Reproducir el grito del Pokémon"
-      >
-        <img id="modalImg" alt="" width="135" height="135" />
-        <div id="throwLayer" class="throw-layer" hidden>
-          <p id="throwHint" class="throw-hint">¡Desliza hacia arriba!</p>
-          <button id="throwBall" class="throw-ball" type="button" aria-label="Arrastra la Pokébola hacia el Pokémon"></button>
-          <button id="throwQuick" class="throw-quick" type="button">¡Lanzar!</button>
+      <div class="modal-layout">
+        <div class="modal-top">
+          <div class="identity">
+            <p class="poke-num" id="modalNum">#000</p>
+            <h2 id="modalName">Pokémon</h2>
+          </div>
+          <section class="type-block" aria-labelledby="typeLabel">
+            <p id="typeLabel" class="field-label">Tipo</p>
+            <div id="modalTypes"></div>
+          </section>
+          <section class="weak-block" aria-labelledby="weakLabel">
+            <p id="weakLabel" class="field-label">Débil contra</p>
+            <div id="weakTypes" class="weak-types"></div>
+            <p id="weakNone" class="weak-none" hidden>¡Ninguno!</p>
+          </section>
         </div>
-        <div id="catchBurst" class="catch-burst" hidden aria-live="polite">
-          <p class="catch-banner">¡Atrapado!</p>
+
+        <div class="modal-stage-col">
+          <div
+            id="pokeStage"
+            class="stage anim-default"
+            role="button"
+            tabindex="0"
+            aria-label="Reproducir el grito del Pokémon"
+          >
+            <img id="modalImg" alt="" width="135" height="135" />
+            <div id="throwLayer" class="throw-layer" hidden>
+              <p id="throwHint" class="throw-hint">¡Desliza hacia arriba!</p>
+              <button id="throwBall" class="throw-ball ball-poke" type="button" aria-label="Arrastra la Pokébola hacia el Pokémon"></button>
+              <button id="throwQuick" class="throw-quick" type="button">¡Lanzar!</button>
+            </div>
+            <div id="catchBurst" class="catch-burst" hidden aria-live="polite">
+              <p class="catch-banner">¡Atrapado!</p>
+            </div>
+          </div>
+          <div class="hint">Toca al Pokémon para escuchar su grito</div>
         </div>
-      </div>
-      <div class="hint">Toca al Pokémon para escuchar su grito</div>
 
-      <p id="modalDesc" class="desc">Cargando descripción…</p>
+        <p id="modalDesc" class="desc">Cargando descripción…</p>
 
-      <section class="evo-block" aria-labelledby="evoTitle">
-        <h3 id="evoTitle">Línea evolutiva</h3>
-        <p id="evoStatus" class="evo-status">Cargando evolución…</p>
-        <div id="evoTrack" class="evo-track" hidden></div>
-      </section>
+        <section class="evo-block" aria-labelledby="evoTitle">
+          <h3 id="evoTitle">Línea evolutiva</h3>
+          <p id="evoStatus" class="evo-status">Cargando evolución…</p>
+          <div id="evoTrack" class="evo-track" hidden></div>
+        </section>
 
-      <div class="actions">
-        <button class="btn btn-voice" id="speakBtn" type="button" aria-label="Escuchar la explicación en español">Escuchar</button>
-        <button class="btn btn-catch" id="catchBtn" type="button">¡Atrapar!</button>
+        <div class="actions">
+          <button class="btn btn-voice" id="speakBtn" type="button" aria-label="Escuchar la explicación en español">Escuchar</button>
+          <div class="catch-tools">
+            <p id="caughtNote" class="caught-note" hidden>¡Atrapado!</p>
+            <div id="ballPicker" class="ball-picker" role="group" aria-label="Elige una Pokébola">
+              <button class="ball-choice is-selected" type="button" data-ball="poke" aria-pressed="true" aria-label="Pokébola">
+                <span class="ball-spin ball-poke"></span>
+              </button>
+              <button class="ball-choice" type="button" data-ball="great" aria-pressed="false" aria-label="Super Ball">
+                <span class="ball-spin ball-great"></span>
+              </button>
+              <button class="ball-choice" type="button" data-ball="ultra" aria-pressed="false" aria-label="Ultra Ball">
+                <span class="ball-spin ball-ultra"></span>
+              </button>
+            </div>
+            <button id="releaseBtn" class="btn-release" type="button" hidden>Soltar</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -167,6 +191,6 @@
     </div>
   </div>
 
-  <script type="module" src="js/main.js?v=11"></script>
+  <script type="module" src="js/main.js?v=13"></script>
 </body>
 </html>

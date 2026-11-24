@@ -70,7 +70,10 @@ const searchInput = document.getElementById("searchInput");
 const typeFilter = document.getElementById("typeFilter");
 const modalBackdrop = document.getElementById("modalBackdrop");
 const speakBtn = document.getElementById("speakBtn");
-const catchBtn = document.getElementById("catchBtn");
+const ballPicker = document.getElementById("ballPicker");
+const releaseBtn = document.getElementById("releaseBtn");
+const caughtNote = document.getElementById("caughtNote");
+let selectedBall = "poke";
 const pokeStage = document.getElementById("pokeStage");
 const throwLayer = document.getElementById("throwLayer");
 const throwHint = document.getElementById("throwHint");
@@ -794,7 +797,7 @@ export function openPokemon(id) {
   image.alt = titleName(poke.name);
   showModalSprite(image, poke);
   pokeStage.className = stageClass(poke.types);
-  catchBtn.textContent = caught.has(poke.id) ? "¡Atrapado!" : "¡Atrapar!";
+  syncCatchControls();
   const knownChain = (poke.evolutionChainUrl && chainCache.get(poke.evolutionChainUrl)) || chainBySpecies.get(poke.id);
   if (knownChain) renderEvolution(knownChain, poke, true);
   else showEvolutionLoading();
@@ -938,14 +941,21 @@ function waitCatch(ms, token) {
   });
 }
 
+function paintBall() {
+  throwBall.classList.remove("ball-poke", "ball-great", "ball-ultra");
+  throwBall.classList.add(`ball-${selectedBall}`);
+}
+
 function restBall() {
-  throwBall.classList.remove("is-shaking");
+  throwBall.classList.remove("is-shaking", "is-flying");
   throwBall.style.visibility = "";
   throwQuick.hidden = false;
   throwBall.style.left = "50%";
   throwBall.style.top = "auto";
-  throwBall.style.bottom = "58px";
-  throwBall.style.transform = "translateX(-50%)";
+  throwBall.style.bottom = "52px";
+  throwBall.style.marginLeft = "-32px";
+  throwBall.style.transform = "";
+  paintBall();
 }
 
 function setThrowHint(text) {
@@ -986,7 +996,37 @@ function cancelCatch() {
   setThrowHint("¡Desliza hacia arriba!");
 }
 
+function selectBall(kind) {
+  if (!kind || catchLock) return;
+  selectedBall = kind;
+  ballPicker.querySelectorAll(".ball-choice").forEach((button) => {
+    const chosen = button.dataset.ball === kind;
+    button.classList.toggle("is-selected", chosen);
+    button.setAttribute("aria-pressed", chosen ? "true" : "false");
+  });
+  paintBall();
+  if (currentPoke && !caught.has(currentPoke.id)) beginCatchMode();
+}
+
+function syncCatchControls() {
+  if (!currentPoke) return;
+  const held = caught.has(currentPoke.id);
+  caughtNote.hidden = !held;
+  releaseBtn.hidden = !held;
+  ballPicker.classList.toggle("is-held", held);
+  ballPicker.querySelectorAll(".ball-choice").forEach((button) => {
+    button.disabled = held;
+  });
+  if (held && !catchLock) {
+    throwLayer.hidden = true;
+    pokeStage.classList.remove("is-catching");
+    return;
+  }
+  if (!held && !catchLock) beginCatchMode();
+}
+
 function beginCatchMode() {
+  if (!currentPoke || caught.has(currentPoke.id) || catchLock) return;
   catchMode = true;
   pokeStage.classList.add("is-catching");
   throwLayer.hidden = false;
@@ -994,7 +1034,6 @@ function beginCatchMode() {
   throwQuick.disabled = false;
   restBall();
   setThrowHint("¡Desliza hacia arriba!");
-  pokeStage.scrollIntoView({ block: "center", behavior: "smooth" });
 }
 
 function commitCatch(poke) {
@@ -1002,10 +1041,7 @@ function commitCatch(poke) {
   caught.add(poke.id);
   updateCaughtCounter();
   markCaughtTag(poke.id);
-  catchBtn.textContent = "¡Atrapado!";
-  catchBtn.classList.remove("caught-pop");
-  void catchBtn.offsetWidth;
-  catchBtn.classList.add("caught-pop");
+  syncCatchControls();
   if (visibleChain) renderEvolution(visibleChain, poke, false);
 }
 
@@ -1018,6 +1054,7 @@ function finishCatchUi() {
   pokeStage.classList.remove("is-catching", "is-flash", "is-absorb");
   clearStars();
   restBall();
+  syncCatchControls();
 }
 
 async function startCaptureSequence(token) {
@@ -1046,6 +1083,7 @@ async function startCaptureSequence(token) {
 function launchThrow() {
   if (!catchMode || catchLock || !currentPoke) return;
   catchLock = true;
+  throwBall.classList.add("is-flying");
   throwQuick.hidden = true;
   setThrowHint("");
   primeCatchChime();
@@ -1062,6 +1100,7 @@ function launchThrow() {
   const arc = Math.max(40, Math.min(120, travel * 0.38));
   const started = performance.now();
   throwBall.style.bottom = "auto";
+  throwBall.style.marginLeft = "0";
   const step = (now) => {
     if (token !== catchToken) return;
     const progress = Math.min(1, (now - started) / duration);
@@ -1102,6 +1141,7 @@ function moveBall(event) {
   const dx = event.clientX - ballDrag.x;
   const dy = event.clientY - ballDrag.y;
   throwBall.style.bottom = "auto";
+  throwBall.style.marginLeft = "0";
   throwBall.style.left = `${ballDrag.originX + dx}px`;
   throwBall.style.top = `${ballDrag.originY + dy}px`;
   throwBall.style.transform = `rotate(${dx * 0.35}deg)`;
@@ -1174,23 +1214,20 @@ export function initPokedex() {
     });
   });
 
-  catchBtn.addEventListener("click", () => {
-    if (!currentPoke || catchLock) return;
-    if (caught.has(currentPoke.id)) {
-      const name = titleName(currentPoke.name);
-      if (!window.confirm(`¿Soltar a ${name}?`)) return;
-      caught.delete(currentPoke.id);
-      updateCaughtCounter();
-      markCaughtTag(currentPoke.id);
-      catchBtn.textContent = "¡Atrapar!";
-      if (visibleChain) renderEvolution(visibleChain, currentPoke, false);
-      return;
-    }
-    if (catchMode) {
-      launchThrow();
-      return;
-    }
-    beginCatchMode();
+  ballPicker.addEventListener("click", (event) => {
+    const choice = event.target.closest(".ball-choice");
+    if (!choice) return;
+    selectBall(choice.dataset.ball);
+  });
+  releaseBtn.addEventListener("click", () => {
+    if (!currentPoke || catchLock || !caught.has(currentPoke.id)) return;
+    const name = titleName(currentPoke.name);
+    if (!window.confirm(`¿Soltar a ${name}?`)) return;
+    caught.delete(currentPoke.id);
+    updateCaughtCounter();
+    markCaughtTag(currentPoke.id);
+    if (visibleChain) renderEvolution(visibleChain, currentPoke, false);
+    syncCatchControls();
   });
 
   document.getElementById("closeModal").addEventListener("click", closeModal);
