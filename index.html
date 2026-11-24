@@ -13,7 +13,7 @@
   <link rel="icon" href="/icons/icon-192.png" type="image/png" />
   <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="css/styles.css?v=29" />
+  <link rel="stylesheet" href="css/styles.css?v=32" />
   <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body class="hello-open">
@@ -118,21 +118,12 @@
         </div>
       </div>
       <div id="teamBody" hidden>
-        <div class="buddy-panel">
-          <p class="buddy-kicker">Tu Pokémon principal</p>
+        <div class="buddy-panel" id="buddyPanel">
+          <p class="buddy-kicker">Tu equipo de 3</p>
           <div class="buddy-split">
           <div class="buddy-card">
-          <div
-            id="buddyStage"
-            class="buddy-stage anim-default"
-            role="button"
-            tabindex="0"
-            aria-label="Reproducir el grito del Pokémon principal"
-          >
-            <img id="buddyImg" alt="" width="180" height="180" />
-            <div id="buddyFx" class="buddy-fx" aria-hidden="true"></div>
-          </div>
-          <p class="buddy-hint">Toca a tu Pokémon para escuchar su grito</p>
+          <div id="squad" class="squad" role="listbox" aria-label="Equipo de 3 Pokémon"></div>
+          <p class="buddy-hint">Toca el dibujo del que come para escuchar su grito. Arrastra la comida hasta él.</p>
           <h2 id="buddyName">Pokémon</h2>
           <div id="buddyTypes" class="poke-types"></div>
           <p id="careLevel" class="care-level">Nivel 1</p>
@@ -153,7 +144,13 @@
           <div class="feed-slot">
             <p id="feedMessage" class="feed-message" hidden role="status"></p>
           </div>
-          <p class="food-menu-title">Menú para comer</p>
+          <div class="food-head">
+            <p class="food-menu-title">Menú para comer</p>
+            <div class="feed-who" role="group" aria-label="A quién dar la comida">
+              <button class="who-btn is-on" type="button" data-who="one" aria-pressed="true">Este</button>
+              <button class="who-btn" type="button" data-who="all" aria-pressed="false">El equipo</button>
+            </div>
+          </div>
           <div class="food-row" role="group" aria-label="Menú para comer">
             <button class="food-btn" type="button" data-food="berry">
               <span class="food-emoji" aria-hidden="true">🍓</span>
@@ -302,6 +299,6 @@
     </div>
   </div>
 
-  <script type="module" src="js/main.js?v=22"></script>
+  <script type="module" src="js/main.js?v=24"></script>
 </body>
 </html>

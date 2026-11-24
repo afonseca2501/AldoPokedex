@@ -229,6 +229,8 @@ main { max-width: 1200px; margin: 0 auto; padding: 20px; }
   border-color: #bfdbfe;
 }
 .buddy-panel {
+  --scene: #fb923c;
+  --scene-2: #1d4ed8;
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -239,6 +241,14 @@ main { max-width: 1200px; margin: 0 auto; padding: 20px; }
   padding: 10px 12px 12px;
   text-align: center;
   overflow: hidden;
+  background:
+    radial-gradient(120% 70% at 8% 0%, color-mix(in srgb, var(--scene) 46%, transparent), transparent 52%),
+    radial-gradient(80% 70% at 100% 100%, color-mix(in srgb, var(--scene-2) 40%, transparent), transparent 48%),
+    linear-gradient(180deg, rgba(8, 47, 73, 0.84), rgba(15, 23, 42, 0.94));
+  border-color: color-mix(in srgb, var(--scene) 72%, #fb923c);
+  box-shadow:
+    0 0 0 2px #1d4ed8,
+    0 0 22px color-mix(in srgb, var(--scene) 42%, transparent);
 }
 .buddy-split {
   flex: 1 1 auto;
@@ -330,18 +340,97 @@ main { max-width: 1200px; margin: 0 auto; padding: 20px; }
 }
 .buddy-kicker { flex: none; }
 .team-title { margin: 12px 0 10px; color: #fff7ed; }
+.squad {
+  width: 100%;
+  flex: none;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+.squad-slot {
+  min-width: 0;
+  min-height: 108px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 2px;
+  padding: 6px 4px 8px;
+  border-radius: 14px;
+  border: 2px solid color-mix(in srgb, var(--slot, #94a3b8) 70%, #fff);
+  background: rgba(2, 6, 23, 0.5);
+  color: #fff7ed;
+  cursor: pointer;
+  text-align: center;
+  box-shadow: inset 0 0 12px color-mix(in srgb, var(--slot, transparent) 35%, transparent);
+}
+.squad-slot.is-focus {
+  border-color: var(--scene, #f97316);
+  box-shadow: 0 0 0 2px #0f172a, 0 0 14px color-mix(in srgb, var(--scene, #f97316) 75%, transparent);
+}
+.squad-slot.is-drop {
+  transform: translateY(-3px);
+  border-color: #fde68a;
+  box-shadow: 0 0 0 3px #fde68a, 0 0 18px color-mix(in srgb, var(--scene, #f97316) 80%, transparent);
+}
+.squad-slot.is-empty {
+  justify-content: center;
+  text-align: center;
+  border-style: dashed;
+  box-shadow: none;
+}
+.slot-pic {
+  position: relative;
+  width: 100%;
+  height: min(96px, 16vh);
+  display: grid;
+  place-items: center;
+}
+.slot-fx {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+.squad-slot img {
+  width: min(88px, 100%);
+  height: min(88px, 100%);
+  object-fit: contain;
+  pointer-events: none;
+}
+.squad-slot img.is-cry { animation: spriteReact 0.7s ease; }
+.squad-meta { min-width: 0; width: 100%; display: flex; flex-direction: column; align-items: center; }
+.squad-name,
+.squad-lv {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.squad-name { font-size: 0.72rem; font-weight: 900; text-transform: capitalize; }
+.squad-lv { font-size: 0.68rem; font-weight: 800; color: #fde68a; }
+.squad-empty {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.75rem;
+  font-weight: 900;
+  line-height: 1.15;
+}
+.squad-empty small { font-size: 0.66rem; color: #fdba74; }
+.squad-slot.is-yum img,
+.squad-slot.is-levelup img { animation: spriteReact 0.7s ease; }
 .buddy-stage {
   position: relative;
   flex: 1 1 auto;
-  width: min(220px, 100%);
-  min-height: 72px;
-  max-height: 168px;
+  width: min(200px, 100%);
+  min-height: 64px;
+  max-height: 118px;
   display: grid;
   place-items: center;
   border-radius: 18px;
-  border: 3px solid #60a5fa;
-  background: radial-gradient(circle at 50% 42%, #1d4ed8, #082f49 68%);
-  box-shadow: inset 0 0 24px rgba(253, 230, 138, 0.18);
+  border: 3px solid var(--scene, #60a5fa);
+  background: radial-gradient(circle at 50% 42%, color-mix(in srgb, var(--scene, #1d4ed8) 62%, #082f49), #082f49 72%);
+  box-shadow: inset 0 0 24px color-mix(in srgb, var(--scene, #fde68a) 35%, transparent);
   cursor: pointer;
   touch-action: manipulation;
 }
@@ -459,14 +548,37 @@ main { max-width: 1200px; margin: 0 auto; padding: 20px; }
   background: #fde68a;
   box-shadow: 0 3px 0 #f97316;
 }
+.food-head {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
 .food-menu-title {
   margin: 0;
-  width: 100%;
   font-size: 0.9rem;
   font-weight: 900;
   color: #fff7ed;
   text-align: left;
   line-height: 1.1;
+}
+.feed-who { display: flex; gap: 4px; flex: none; }
+.who-btn {
+  min-height: 44px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 2px solid #bfdbfe;
+  background: #1e3a8a;
+  color: #fff7ed;
+  font-weight: 900;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+.who-btn.is-on {
+  background: #f97316;
+  color: #0f172a;
+  border-color: #fff7ed;
 }
 .food-row {
   width: 100%;
@@ -487,8 +599,29 @@ main { max-width: 1200px; margin: 0 auto; padding: 20px; }
   font-weight: 900;
   font-size: 0.78rem;
   line-height: 1.1;
-  cursor: pointer;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
   box-shadow: 0 3px 0 rgba(0, 0, 0, 0.35);
+}
+.food-ghost {
+  position: fixed;
+  z-index: 80;
+  width: 64px;
+  height: 64px;
+  margin-left: -32px;
+  margin-top: -32px;
+  display: grid;
+  place-items: center;
+  font-size: 2.6rem;
+  line-height: 1;
+  pointer-events: none;
+  filter: drop-shadow(0 8px 0 rgba(15, 23, 42, 0.45));
+}
+.food-ghost.is-back {
+  transition: left 0.28s ease, top 0.28s ease, transform 0.28s ease, opacity 0.28s ease;
+  transform: scale(0.8);
+  opacity: 0.35;
 }
 .food-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(0, 0, 0, 0.35); }
 .food-emoji { font-size: 1.15rem; line-height: 1; }
@@ -505,10 +638,14 @@ main { max-width: 1200px; margin: 0 auto; padding: 20px; }
 .food-btn[data-food="juice"] { background: #1d4ed8; color: #fff7ed; }
 .food-btn[data-food="water"] { background: #1e3a8a; color: #fff7ed; }
 .food-btn[data-food="shake"] { background: #082f49; color: #fff7ed; border-color: #93c5fd; }
-@media (max-height: 680px) {
+@media (max-height: 860px) {
   .buddy-hint { display: none; }
-  .buddy-stage { max-height: 120px; }
+  .buddy-stage { min-height: 52px; max-height: 96px; }
   .food-note { display: none; }
+  .squad-slot { min-height: 92px; }
+  .slot-pic { height: min(72px, 12vh); }
+  .feed-slot { min-height: 1.15rem; }
+  .buddy-card { gap: 2px; }
 }
 .team-grid {
   display: grid;
@@ -527,6 +664,9 @@ main { max-width: 1200px; margin: 0 auto; padding: 20px; }
 .team-card.is-partner {
   border-color: #fb923c;
   box-shadow: 0 0 0 2px #1d4ed8, 0 0 16px rgba(249, 115, 22, 0.4);
+}
+.team-card.is-focus {
+  border-color: #fde68a;
 }
 .team-pick,
 .team-open {
