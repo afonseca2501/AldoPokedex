@@ -13,7 +13,7 @@
   <link rel="icon" href="/icons/icon-192.png" type="image/png" />
   <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="css/styles.css?v=23" />
+  <link rel="stylesheet" href="css/styles.css?v=24" />
   <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body class="hello-open">
@@ -159,7 +159,7 @@
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalName">
       <button class="close-btn" id="closeModal" type="button" aria-label="Cerrar">✕</button>
       <div class="modal-layout">
-        <div class="modal-top">
+        <div class="modal-info">
           <div class="identity">
             <p class="poke-num" id="modalNum">#000</p>
             <h2 id="modalName">Pokémon</h2>
@@ -168,11 +168,43 @@
             <p id="typeLabel" class="field-label">Tipo</p>
             <div id="modalTypes"></div>
           </section>
+          <p id="modalDesc" class="desc">Cargando descripción…</p>
+          <section class="evo-block" aria-labelledby="evoTitle">
+            <h3 id="evoTitle">Línea evolutiva</h3>
+            <p id="evoStatus" class="evo-status">Cargando evolución…</p>
+            <div id="evoTrack" class="evo-track" hidden></div>
+          </section>
           <section class="weak-block" aria-labelledby="weakLabel">
             <p id="weakLabel" class="field-label">Débil contra</p>
             <div id="weakTypes" class="weak-types"></div>
             <p id="weakNone" class="weak-none" hidden>¡Ninguno!</p>
           </section>
+          <div class="actions">
+            <button class="btn btn-voice" id="speakBtn" type="button" aria-label="Escuchar la explicación en español">Escuchar</button>
+            <div class="catch-tools">
+              <p id="caughtNote" class="caught-note" hidden>¡Atrapado!</p>
+              <div id="ballPicker" class="ball-picker" role="group" aria-label="Elige una Pokébola">
+                <button class="ball-choice is-selected" type="button" data-ball="poke" aria-pressed="true" aria-label="Pokébola">
+                  <span class="ball-spin ball-poke"></span>
+                </button>
+                <button class="ball-choice" type="button" data-ball="great" aria-pressed="false" aria-label="Super Ball">
+                  <span class="ball-spin ball-great"></span>
+                </button>
+                <button class="ball-choice" type="button" data-ball="ultra" aria-pressed="false" aria-label="Ultra Ball">
+                  <span class="ball-spin ball-ultra"></span>
+                </button>
+              </div>
+              <button id="releaseBtn" class="btn-release" type="button" hidden>Soltar</button>
+              <div id="releaseAsk" class="release-ask" hidden>
+                <p id="releaseAskText">¿Soltar?</p>
+                <div class="release-actions">
+                  <button id="releaseYes" class="btn-release" type="button">Soltar</button>
+                  <button id="releaseNo" class="btn-cancel" type="button">Cancelar</button>
+                </div>
+              </div>
+              <p id="releaseToast" class="release-toast" hidden role="status"></p>
+            </div>
+          </div>
         </div>
 
         <div class="modal-stage-col">
@@ -195,41 +227,6 @@
           </div>
           <div class="hint">Toca al Pokémon para escuchar su grito</div>
         </div>
-
-        <p id="modalDesc" class="desc">Cargando descripción…</p>
-
-        <section class="evo-block" aria-labelledby="evoTitle">
-          <h3 id="evoTitle">Línea evolutiva</h3>
-          <p id="evoStatus" class="evo-status">Cargando evolución…</p>
-          <div id="evoTrack" class="evo-track" hidden></div>
-        </section>
-
-        <div class="actions">
-          <button class="btn btn-voice" id="speakBtn" type="button" aria-label="Escuchar la explicación en español">Escuchar</button>
-          <div class="catch-tools">
-            <p id="caughtNote" class="caught-note" hidden>¡Atrapado!</p>
-            <div id="ballPicker" class="ball-picker" role="group" aria-label="Elige una Pokébola">
-              <button class="ball-choice is-selected" type="button" data-ball="poke" aria-pressed="true" aria-label="Pokébola">
-                <span class="ball-spin ball-poke"></span>
-              </button>
-              <button class="ball-choice" type="button" data-ball="great" aria-pressed="false" aria-label="Super Ball">
-                <span class="ball-spin ball-great"></span>
-              </button>
-              <button class="ball-choice" type="button" data-ball="ultra" aria-pressed="false" aria-label="Ultra Ball">
-                <span class="ball-spin ball-ultra"></span>
-              </button>
-            </div>
-            <button id="releaseBtn" class="btn-release" type="button" hidden>Soltar</button>
-            <div id="releaseAsk" class="release-ask" hidden>
-              <p id="releaseAskText">¿Soltar?</p>
-              <div class="release-actions">
-                <button id="releaseYes" class="btn-release" type="button">Soltar</button>
-                <button id="releaseNo" class="btn-cancel" type="button">Cancelar</button>
-              </div>
-            </div>
-            <p id="releaseToast" class="release-toast" hidden role="status"></p>
-          </div>
-        </div>
       </div>
     </div>
   </div>
@@ -251,6 +248,6 @@
     </div>
   </div>
 
-  <script type="module" src="js/main.js?v=17"></script>
+  <script type="module" src="js/main.js?v=18"></script>
 </body>
 </html>

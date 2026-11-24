@@ -1,4 +1,4 @@
-import { artworkUrl, onCatalogChange, spriteUrl } from "./pokedex.js?v=16";
+import { artworkUrl, onCatalogChange, spriteUrl } from "./pokedex.js?v=17";
 
 const TRAINER_SOURCES = [
   "image_aldo.webp",

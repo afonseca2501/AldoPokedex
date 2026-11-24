@@ -1,4 +1,4 @@
-import { cryUrlList, playCry, playCatchChime, primeCatchChime, speakSpanish, stopAllAudio } from "./audio.js?v=6";
+import { cryUrlList, playCry, playCatchChime, primeCatchChime, speakSpanish, stopAllAudio } from "./audio.js?v=7";
 import { TYPE_ORDER, getType, paintTypeBadges, typeName, weaknessesOf } from "./types.js?v=5";
 
 const CAUGHT_KEY = "pokemundo_caught";
@@ -615,8 +615,13 @@ async function attachSpecies(poke) {
   const pokemon = await fetchJson(`https://pokeapi.co/api/v2/pokemon/${poke.id}/`);
   if (pokemon) {
     if (pokemon.name) poke.name = pokemon.name;
-    const cries = [pokemon.cries?.latest, pokemon.cries?.legacy].filter(Boolean);
-    if (cries.length) poke.cryUrls = cries;
+    const seenCries = new Set();
+    poke.cryUrls = [pokemon.cries?.latest, pokemon.cries?.legacy, ...cryUrlList(poke.id)].filter((url) => {
+      const clean = String(url || "").trim();
+      if (!clean || seenCries.has(clean)) return false;
+      seenCries.add(clean);
+      return true;
+    });
     const types = (pokemon.types || []).map((entry) => entry.type?.name).filter(Boolean);
     if (types.length) poke.types = types;
     poke.speciesId = speciesIdFromUrl(pokemon.species?.url) || poke.id;

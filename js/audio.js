@@ -11,10 +11,24 @@ let chimeContext = null;
 let chimeNodes = [];
 
 export function cryUrlList(id) {
+  const numeric = Number(id);
+  if (!Number.isInteger(numeric) || numeric <= 0) return [];
   return [
-    `https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/${id}.ogg`,
-    `https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/legacy/${id}.ogg`,
+    `https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/${numeric}.ogg`,
+    `https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/legacy/${numeric}.ogg`,
   ];
+}
+
+function crySources(poke) {
+  const listed = Array.isArray(poke?.cryUrls) ? poke.cryUrls : [];
+  const seen = new Set();
+  return [...listed, ...cryUrlList(poke?.id)].filter((url) => {
+    const clean = String(url || "").trim();
+    if (!/^https:\/\/raw\.githubusercontent\.com\/PokeAPI\/cries\/.+\.ogg(?:\?.*)?$/i.test(clean)) return false;
+    if (seen.has(clean)) return false;
+    seen.add(clean);
+    return true;
+  });
 }
 
 export function warmSpanishVoices() {
@@ -27,12 +41,13 @@ export function warmSpanishVoices() {
 
 function stopCry() {
   cryToken += 1;
-  if (!cryAudio) return;
-  cryAudio.onerror = null;
-  cryAudio.pause();
-  cryAudio.removeAttribute("src");
-  cryAudio.load();
+  const audio = cryAudio;
   cryAudio = null;
+  if (!audio) return;
+  audio.onerror = null;
+  audio.pause();
+  audio.removeAttribute("src");
+  try { audio.load(); } catch { /* el archivo ya no se puede leer */ }
 }
 
 function cancelSpeech() {
@@ -94,24 +109,38 @@ export function playCry(poke) {
   stopCry();
   stopCatchChime();
   const token = cryToken;
-  const urls = (poke.cryUrls && poke.cryUrls.length ? poke.cryUrls : cryUrlList(poke.id)).filter(Boolean);
+  const urls = crySources(poke);
   if (!urls.length) return;
-
-  const audio = new Audio();
-  cryAudio = audio;
   let step = 0;
-  const tryUrl = () => {
+
+  const tryNext = () => {
     if (token !== cryToken || step >= urls.length) return;
-    audio.src = urls[step];
+    const audio = new Audio();
+    cryAudio = audio;
+    const url = urls[step];
+    let settled = false;
+    const fail = () => {
+      if (settled || token !== cryToken || cryAudio !== audio) return;
+      settled = true;
+      audio.onerror = null;
+      audio.pause();
+      step += 1;
+      tryNext();
+    };
+    audio.preload = "auto";
+    audio.onerror = fail;
+    audio.src = url;
     const pending = audio.play();
-    if (pending && typeof pending.catch === "function") pending.catch(() => {});
+    if (pending && typeof pending.catch === "function") {
+      pending.catch((error) => {
+        const name = error && error.name;
+        if (name === "AbortError" || name === "NotAllowedError") return;
+        fail();
+      });
+    }
   };
-  audio.onerror = () => {
-    if (token !== cryToken) return;
-    step += 1;
-    tryUrl();
-  };
-  tryUrl();
+
+  tryNext();
 }
 
 function spanishVoices() {

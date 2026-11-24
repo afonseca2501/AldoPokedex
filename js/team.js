@@ -1,4 +1,4 @@
-import { playCry, stopAllAudio } from "./audio.js?v=6";
+import { playCry, stopAllAudio } from "./audio.js?v=7";
 import {
   attachAnimatedSprite,
   caughtIds,
@@ -10,7 +10,7 @@ import {
   setStableSprite,
   stageAnimClass,
   titleName,
-} from "./pokedex.js?v=16";
+} from "./pokedex.js?v=17";
 import { paintTypeBadges } from "./types.js?v=5";
 
 const PARTNER_KEY = "pokemundo_partner";
