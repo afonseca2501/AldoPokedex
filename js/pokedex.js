@@ -43,7 +43,6 @@ let caught = loadCaught();
 let totalExpected = 0;
 let currentPoke = null;
 let modalToken = 0;
-let modalSpriteToken = 0;
 let speakToken = 0;
 let renderJob = 0;
 let renderQueued = false;
@@ -204,6 +203,23 @@ export function isCaught(id) {
   return caught.has(Number(id));
 }
 
+export function caughtIds() {
+  return [...caught].sort((a, b) => a - b);
+}
+
+export function knownPokemon(id) {
+  const numeric = Number(id);
+  if (!Number.isInteger(numeric) || numeric <= 0) return null;
+  const found = byId.get(numeric);
+  if (found) return found;
+  return {
+    id: numeric,
+    name: "Pokémon",
+    types: [],
+    cryUrls: cryUrlList(numeric),
+  };
+}
+
 export function onCaughtChange(listener) {
   caughtListeners.add(listener);
 }
@@ -323,25 +339,37 @@ function probeImage(url, ms) {
   });
 }
 
-function showModalSprite(img, poke) {
-  const token = ++modalSpriteToken;
+const spriteJobs = new WeakMap();
+
+export function setStableSprite(img, id) {
+  setSprite(img, id);
+}
+
+export function attachAnimatedSprite(img, poke) {
+  if (!img || !poke) return;
+  const token = (spriteJobs.get(img) || 0) + 1;
+  spriteJobs.set(img, token);
   setSprite(img, poke.id);
   const urls = animatedSpriteUrls(poke);
   (async () => {
     for (const url of urls) {
-      if (token !== modalSpriteToken) return;
+      if (spriteJobs.get(img) !== token) return;
       const ready = await probeImage(url, 2500);
-      if (token !== modalSpriteToken) return;
+      if (spriteJobs.get(img) !== token) return;
       if (!ready) continue;
       img.dataset.step = "gif";
       img.onerror = () => {
-        if (token !== modalSpriteToken) return;
+        if (spriteJobs.get(img) !== token) return;
         setSprite(img, poke.id);
       };
       img.src = url;
       return;
     }
   })();
+}
+
+function showModalSprite(img, poke) {
+  attachAnimatedSprite(img, poke);
 }
 
 function createCard(poke) {
@@ -515,9 +543,13 @@ function refreshVisibleTypes() {
   });
 }
 
+export function stageAnimClass(types) {
+  const main = (types || []).find(Boolean);
+  return ANIMATED_TYPES.has(main) ? `anim-${main}` : "anim-default";
+}
+
 function stageClass(types) {
-  const main = (types || [])[0];
-  return ANIMATED_TYPES.has(main) ? `stage anim-${main}` : "stage anim-default";
+  return `stage ${stageAnimClass(types)}`;
 }
 
 function pulseStage() {

@@ -13,6 +13,7 @@ const files = [
   "js/map.js",
   "js/main.js",
   "js/welcome.js",
+  "js/team.js",
   "sw.js",
 ];
 

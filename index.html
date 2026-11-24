@@ -13,7 +13,7 @@
   <link rel="icon" href="/icons/icon-192.png" type="image/png" />
   <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="css/styles.css?v=22" />
+  <link rel="stylesheet" href="css/styles.css?v=23" />
   <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body class="hello-open">
@@ -22,11 +22,15 @@
     <div class="tabs" role="tablist">
       <button class="tab-btn" type="button" data-view="mapView" role="tab" aria-selected="false">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M4 5.5 9 4l6 2 5-1.5V18l-5 1.5-6-2-4 1.5V5.5zm5 .8v9.4l6 2V8.3l-6-2z"/></svg>
-        Mapa
+        <span>Mapa</span>
       </button>
       <button class="tab-btn active" type="button" data-view="dexView" role="tab" aria-selected="true">
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.2" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M4 12h16" stroke="currentColor" stroke-width="2.2"/><circle cx="12" cy="12" r="2.4" fill="currentColor"/></svg>
-        Pokédex
+        <span>Pokédex</span>
+      </button>
+      <button class="tab-btn" type="button" data-view="teamView" role="tab" aria-selected="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="m12 2.8 2.5 5.5 6 .6-4.5 4 1.3 6L12 16.2 6.7 18.9l1.3-6-4.5-4 6-.6L12 2.8z"/></svg>
+        <span>Mis Pokémon</span>
       </button>
     </div>
     <div class="catch-badge">
@@ -102,6 +106,52 @@
       </div>
       <div id="radarBanner" class="radar-banner" hidden></div>
       <div id="map"></div>
+    </section>
+
+    <section id="teamView" class="view">
+      <div id="teamEmpty" class="team-empty" hidden>
+        <p class="team-empty-title">¡Aún no tienes Pokémon!</p>
+        <p>Atrapa uno en la Pokédex o encuéntralos en el Mapa.</p>
+        <div class="team-empty-actions">
+          <button class="btn btn-voice" type="button" data-go="dexView">Ir a la Pokédex</button>
+          <button class="btn team-go-map" type="button" data-go="mapView">Ir al Mapa</button>
+        </div>
+      </div>
+      <div id="teamBody" hidden>
+        <div class="buddy-panel">
+          <p class="buddy-kicker">Tu Pokémon principal</p>
+          <div
+            id="buddyStage"
+            class="buddy-stage anim-default"
+            role="button"
+            tabindex="0"
+            aria-label="Reproducir el grito del Pokémon principal"
+          >
+            <img id="buddyImg" alt="" width="180" height="180" />
+            <div id="buddyFx" class="buddy-fx" aria-hidden="true"></div>
+          </div>
+          <p class="buddy-hint">Toca a tu Pokémon para escuchar su grito</p>
+          <h2 id="buddyName">Pokémon</h2>
+          <div id="buddyTypes" class="poke-types"></div>
+          <p id="feedMessage" class="feed-message" hidden role="status"></p>
+          <div class="food-row" role="group" aria-label="Darle comida">
+            <button class="food-btn" type="button" data-food="berry">
+              <span class="food-emoji" aria-hidden="true">🍓</span>
+              Baya
+            </button>
+            <button class="food-btn" type="button" data-food="cookie">
+              <span class="food-emoji" aria-hidden="true">🍪</span>
+              Galleta
+            </button>
+            <button class="food-btn" type="button" data-food="juice">
+              <span class="food-emoji" aria-hidden="true">🧃</span>
+              Jugo
+            </button>
+          </div>
+        </div>
+        <h3 class="team-title">Tu colección</h3>
+        <div id="teamGrid" class="team-grid"></div>
+      </div>
     </section>
   </main>
 
@@ -201,6 +251,6 @@
     </div>
   </div>
 
-  <script type="module" src="js/main.js?v=16"></script>
+  <script type="module" src="js/main.js?v=17"></script>
 </body>
 </html>

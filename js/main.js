@@ -1,6 +1,7 @@
 import { warmSpanishVoices } from "./audio.js?v=6";
 import { showMap, initMap } from "./map.js?v=8";
-import { initPokedex, openPokemon } from "./pokedex.js?v=15";
+import { initPokedex, openPokemon } from "./pokedex.js?v=16";
+import { initTeam, refreshTeam } from "./team.js?v=1";
 import { startWelcome } from "./welcome.js?v=8";
 
 const welcome = document.getElementById("welcome");
@@ -20,12 +21,14 @@ function activateView(viewName) {
     view.classList.toggle("active", view.id === viewName);
   });
   if (viewName === "mapView") showMap();
+  if (viewName === "teamView") refreshTeam();
 }
 
 window.openPokemon = openPokemon;
 warmSpanishVoices();
 initPokedex();
 initMap();
+initTeam({ showView: activateView });
 startWelcome();
 if (document.getElementById("mapView").classList.contains("active")) showMap();
 window.setTimeout(hideWelcome, 2200);

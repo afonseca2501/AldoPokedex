@@ -16,6 +16,7 @@ AldoPokedex/
 ├── js/
 │   ├── main.js       # pestañas y arranque
 │   ├── pokedex.js    # catálogo, búsqueda, filtros, capturas y ficha
+│   ├── team.js       # colección, Pokémon principal y comida
 │   ├── audio.js      # grito del Pokémon y lectura en español, separados
 │   ├── welcome.js    # saludo de Aldo y precarga de sprites
 │   └── map.js        # mapa Leaflet, capas, hábitats y radar
@@ -29,6 +30,7 @@ AldoPokedex/
 - La cuadrícula pinta lotes de 36 tarjetas. Un centinela al final, observado con 600 px de margen inferior, pide el siguiente lote antes de llegar al fondo. Cada tarjeta solo carga su imagen (`loading="lazy"` y `decoding="async"`). La especie y la línea evolutiva se piden al abrir la ficha.
 - La cuadrícula, el mapa y las mini-cartas usan el arte oficial o el sprite frontal, imágenes estables para que el scroll siga ligero. En la ficha grande se intenta primero el sprite animado (Showdown de PokéAPI, luego la versión animada de Blanco y Negro y, si hay nombre, el GIF de Pokémon Showdown). Si no existe, tarda más de 2,5 s o falla, se queda el arte oficial y después el sprite frontal, sin un icono de imagen rota.
 - La barra se guarda en `localStorage` con la clave `pokemundo_caught`. La insignia de la cabecera muestra «¡Llevas N!», el porcentaje, `N / total` y una barra gruesa. Como está dentro de la cabecera fija, sigue visible al bajar por la Pokédex.
+- La pestaña «Mis Pokémon» lista los capturados. El Pokémon principal se guarda en `pokemundo_partner`. Si se suelta, pasa a ser principal el de número más bajo que siga atrapado. En el escenario central se ve su sprite animado. Baya, Galleta y Jugo solo muestran un salto, partículas y un mensaje corto, sin grito ni lectura. El grito suena al tocar ese escenario. «Ver ficha» abre la ficha en silencio. Si no hay capturas, hay botones a la Pokédex y al Mapa.
 - En la ficha hay tres Pokébolas que giran: la clásica roja, la Super Ball azul y roja, y la Ultra Ball negra y amarilla. Al tocar una, esa bola queda abajo del escenario. Se arrastra hacia arriba o se pulsa «¡Lanzar!». Al chocar hay un destello, el Pokémon entra en la bola, la bola tiembla y sale «¡Atrapado!» con estrellas y un tono suave. Ese tono no es el grito ni la lectura en español. Recién entonces se guarda la captura, sube la barra y se marca la tarjeta. Si ya estaba atrapado, «Soltar» pregunta dentro de la ficha, con «Soltar» y «Cancelar». Al confirmar, el aviso dice que regresó a su hábitat, sin el cuadro del navegador ni un sonido extra.
 - Los tipos usan sus colores clásicos en tarjetas, ficha y línea evolutiva. La ficha tiene «Escuchar» y el selector de Pokébolas. La X de la ficha se queda visible.
 - El grito y un salto de reacción solo ocurren al tocar o hacer clic sobre el Pokémon dentro de la ficha. Abrir la tarjeta no reproduce sonido. «Escuchar» solo lee el texto en español.
@@ -77,10 +79,11 @@ En Chrome, con el sitio abierto, usa el icono de instalar de la barra de direcci
 1. Los seis clave salen al momento y luego el texto pasa a «Catálogo completo».
 2. Abre un Pokémon desde la lista: la ficha aparece en silencio y, si existe, el dibujo grande pasa al sprite animado. Si no existe, se queda la imagen oficial. Toca la imagen: suena el grito y el Pokémon da un salto. «Escuchar» solo lee en español. Toca una de las tres Pokébolas, arrástrala hacia arriba o pulsa «¡Lanzar!». Al acertar aparece «¡Atrapado!» y «¡Llevas N!» suma uno.
 3. Confirma el encabezado azul, el texto «¡Bienvenido, Aldo!» y la insignia de capturados. Baja por la lista: «¡Llevas N!» y la barra siguen arriba, sin tapar las tarjetas.
-4. Marca capturado y recarga: la barra y la marca siguen ahí.
-5. En Mapa Mundial toca un marcador: el mapa se acerca, ese Pokémon crece, y ves bandera, país y «Ver ficha», sin grito. Si ya lo atrapaste, el marcador lleva una pokébola.
-6. Vuelve a Pokédex y regresa al mapa: el mapa ocupa todo el recuadro.
-7. Abre Bulbasaur: la línea muestra tres etapas y «Actual» en la primera. Toca Ivysaur: cambia la ficha sin grito. Abre Kyogre: aparece el aviso de que no tiene evoluciones.
-8. En la Pokédex baja con el scroll: los siguientes Pokémon aparecen antes de tocar el fondo. Abrir uno sigue en silencio y el grito solo suena al tocar su imagen.
-9. La X de la ficha se ve grande y naranja. En el mapa, la X del popup, Radar Salvaje y el selector de capa también se distinguen al tocarlos.
-10. En una ventana ancha, la ficha es más pequeña que la pantalla. El fondo se oscurece un poco y la ficha flota con sombra, pero se sigue viendo la Pokédex. A la izquierda están el nombre, Tipo, Débil contra, la descripción y la evolución. A la derecha, el Pokémon. Las tres Pokébolas giran; al tocar una se puede lanzar. No hay scroll dentro de la ficha.
+4. Abre «Mis Pokémon». Elige otro de la colección: el escenario cambia sin grito. Toca Baya, Galleta o Jugo: salta, salen partículas y un mensaje, sin sonido. Toca su imagen: ahí sí suena el grito. Si sueltas al principal, otro capturado ocupa su lugar.
+5. Marca capturado y recarga: la barra, la colección y el Pokémon principal siguen ahí.
+6. En Mapa Mundial toca un marcador: el mapa se acerca, ese Pokémon crece, y ves bandera, país y «Ver ficha», sin grito. Si ya lo atrapaste, el marcador lleva una pokébola.
+7. Vuelve a Pokédex y regresa al mapa: el mapa ocupa todo el recuadro.
+8. Abre Bulbasaur: la línea muestra tres etapas y «Actual» en la primera. Toca Ivysaur: cambia la ficha sin grito. Abre Kyogre: aparece el aviso de que no tiene evoluciones.
+9. En la Pokédex baja con el scroll: los siguientes Pokémon aparecen antes de tocar el fondo. Abrir uno sigue en silencio y el grito solo suena al tocar su imagen.
+10. La X de la ficha se ve grande y naranja. En el mapa, la X del popup, Radar Salvaje y el selector de capa también se distinguen al tocarlos.
+11. En una ventana ancha, la ficha es más pequeña que la pantalla. El fondo se oscurece un poco y la ficha flota con sombra, pero se sigue viendo la Pokédex. A la izquierda están el nombre, Tipo, Débil contra, la descripción y la evolución. A la derecha, el Pokémon. Las tres Pokébolas giran; al tocar una se puede lanzar. No hay scroll dentro de la ficha.
