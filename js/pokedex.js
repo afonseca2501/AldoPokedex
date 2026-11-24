@@ -72,7 +72,14 @@ const modalBackdrop = document.getElementById("modalBackdrop");
 const speakBtn = document.getElementById("speakBtn");
 const ballPicker = document.getElementById("ballPicker");
 const releaseBtn = document.getElementById("releaseBtn");
+const releaseAsk = document.getElementById("releaseAsk");
+const releaseAskText = document.getElementById("releaseAskText");
+const releaseYes = document.getElementById("releaseYes");
+const releaseNo = document.getElementById("releaseNo");
+const releaseToast = document.getElementById("releaseToast");
 const caughtNote = document.getElementById("caughtNote");
+let releaseAsking = false;
+let releaseToastTimer = 0;
 let selectedBall = "poke";
 const pokeStage = document.getElementById("pokeStage");
 const throwLayer = document.getElementById("throwLayer");
@@ -783,6 +790,8 @@ function ensureEntry(id) {
 export function openPokemon(id) {
   const poke = ensureEntry(id);
   if (!poke) return;
+  clearReleaseAsk();
+  clearReleaseToast();
   cancelCatch();
   currentPoke = poke;
   const token = ++modalToken;
@@ -813,7 +822,29 @@ export function openPokemon(id) {
   });
 }
 
+function clearReleaseAsk() {
+  releaseAsking = false;
+  releaseAsk.hidden = true;
+}
+
+function clearReleaseToast() {
+  window.clearTimeout(releaseToastTimer);
+  releaseToast.hidden = true;
+  releaseToast.textContent = "";
+}
+
+function showReleaseToast(text) {
+  window.clearTimeout(releaseToastTimer);
+  releaseToast.textContent = text;
+  releaseToast.hidden = false;
+  releaseToastTimer = window.setTimeout(() => {
+    releaseToast.hidden = true;
+  }, 2400);
+}
+
 function closeModal() {
+  clearReleaseAsk();
+  clearReleaseToast();
   cancelCatch();
   stopAllAudio();
   modalBackdrop.classList.remove("open");
@@ -1011,8 +1042,11 @@ function selectBall(kind) {
 function syncCatchControls() {
   if (!currentPoke) return;
   const held = caught.has(currentPoke.id);
+  if (!held) clearReleaseAsk();
   caughtNote.hidden = !held;
-  releaseBtn.hidden = !held;
+  releaseBtn.hidden = !held || releaseAsking;
+  releaseAsk.hidden = !held || !releaseAsking;
+  ballPicker.hidden = releaseAsking;
   ballPicker.classList.toggle("is-held", held);
   ballPicker.querySelectorAll(".ball-choice").forEach((button) => {
     button.disabled = held;
@@ -1221,13 +1255,24 @@ export function initPokedex() {
   });
   releaseBtn.addEventListener("click", () => {
     if (!currentPoke || catchLock || !caught.has(currentPoke.id)) return;
+    releaseAsking = true;
+    releaseAskText.textContent = `¿Soltar a ${titleName(currentPoke.name)}?`;
+    syncCatchControls();
+  });
+  releaseNo.addEventListener("click", () => {
+    clearReleaseAsk();
+    syncCatchControls();
+  });
+  releaseYes.addEventListener("click", () => {
+    if (!currentPoke || !caught.has(currentPoke.id)) return;
     const name = titleName(currentPoke.name);
-    if (!window.confirm(`¿Soltar a ${name}?`)) return;
     caught.delete(currentPoke.id);
     updateCaughtCounter();
     markCaughtTag(currentPoke.id);
     if (visibleChain) renderEvolution(visibleChain, currentPoke, false);
+    clearReleaseAsk();
     syncCatchControls();
+    showReleaseToast(`${name} regresó a su hábitat`);
   });
 
   document.getElementById("closeModal").addEventListener("click", closeModal);

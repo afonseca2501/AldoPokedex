@@ -464,7 +464,9 @@ input:focus, select:focus, button:focus-visible {
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.38);
+  background: rgba(4, 9, 20, 0.58);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
   display: none;
   align-items: center;
   justify-content: center;
@@ -490,6 +492,7 @@ input:focus, select:focus, button:focus-visible {
   padding: 10px 14px 12px;
   position: relative;
   text-align: center;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.68), 0 0 0 1px rgba(255, 255, 255, 0.14);
 }
 .modal-layout {
   flex: 1 1 auto;
@@ -755,6 +758,7 @@ input:focus, select:focus, button:focus-visible {
   gap: 8px;
   align-items: center;
 }
+.ball-picker[hidden] { display: none !important; }
 .ball-picker.is-held { opacity: 0.55; }
 .ball-choice {
   appearance: none;
@@ -783,16 +787,50 @@ input:focus, select:focus, button:focus-visible {
   color: #bbf7d0;
 }
 .caught-note[hidden],
-.btn-release[hidden] { display: none !important; }
-.btn-release {
-  min-height: 40px;
-  padding: 6px 12px;
-  border-radius: 999px;
-  border: 2px solid #dcfce7;
-  background: #22c55e;
-  color: #052e16;
+.btn-release[hidden],
+.release-ask[hidden],
+.release-toast[hidden] { display: none !important; }
+.btn-release,
+.btn-cancel {
+  min-height: 48px;
+  padding: 8px 14px;
+  border-radius: 12px;
   font-weight: 800;
   cursor: pointer;
+}
+.btn-release {
+  border: 3px solid #dcfce7;
+  background: #22c55e;
+  color: #052e16;
+}
+.btn-cancel {
+  border: 3px solid #fff7ed;
+  background: #f97316;
+  color: #0f172a;
+}
+.release-ask {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
+  border-radius: 14px;
+  background: #0b1b33;
+  border: 2px solid rgba(249, 115, 22, 0.75);
+}
+.release-ask p {
+  margin: 0;
+  font-weight: 800;
+  color: #fff7ed;
+}
+.release-actions { display: flex; gap: 8px; }
+.release-actions button { flex: 1; }
+.release-toast {
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: #1d4ed8;
+  color: #fff;
+  font-weight: 800;
 }
 @media (prefers-reduced-motion: reduce) {
   .ball-spin,

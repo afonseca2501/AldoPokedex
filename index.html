@@ -13,7 +13,7 @@
   <link rel="icon" href="/icons/icon-192.png" type="image/png" />
   <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="css/styles.css?v=19" />
+  <link rel="stylesheet" href="css/styles.css?v=21" />
   <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body class="hello-open">
@@ -168,6 +168,14 @@
               </button>
             </div>
             <button id="releaseBtn" class="btn-release" type="button" hidden>Soltar</button>
+            <div id="releaseAsk" class="release-ask" hidden>
+              <p id="releaseAskText">¿Soltar?</p>
+              <div class="release-actions">
+                <button id="releaseYes" class="btn-release" type="button">Soltar</button>
+                <button id="releaseNo" class="btn-cancel" type="button">Cancelar</button>
+              </div>
+            </div>
+            <p id="releaseToast" class="release-toast" hidden role="status"></p>
           </div>
         </div>
       </div>
@@ -191,6 +199,6 @@
     </div>
   </div>
 
-  <script type="module" src="js/main.js?v=13"></script>
+  <script type="module" src="js/main.js?v=14"></script>
 </body>
 </html>
