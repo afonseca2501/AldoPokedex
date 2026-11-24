@@ -62,6 +62,7 @@ export function setStatus(message, retry = false) {
   retryBtn.hidden = !retry;
 }
 const caughtCount = document.getElementById("caughtCount");
+const caughtPercent = document.getElementById("caughtPercent");
 const caughtRatio = document.getElementById("caughtRatio");
 const caughtBar = document.getElementById("caughtBar");
 const caughtTrack = document.getElementById("caughtTrack");
@@ -211,7 +212,9 @@ function updateCaughtCounter() {
   const total = totalExpected || catalog.length;
   const captured = caught.size;
   const exact = total > 0 ? Math.min(100, (captured / total) * 100) : 0;
+  const rounded = Math.round(exact);
   caughtCount.textContent = captured === 1 ? "¡Llevas 1!" : `¡Llevas ${captured}!`;
+  caughtPercent.textContent = captured > 0 && rounded === 0 ? "<1%" : `${rounded}%`;
   caughtRatio.textContent = `${captured} / ${total}`;
   caughtBar.style.width = captured > 0 ? `max(${exact}%, 10px)` : "0%";
   caughtTrack.setAttribute("aria-valuemax", String(total));

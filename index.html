@@ -13,7 +13,7 @@
   <link rel="icon" href="/icons/icon-192.png" type="image/png" />
   <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="css/styles.css?v=21" />
+  <link rel="stylesheet" href="css/styles.css?v=22" />
   <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body class="hello-open">
@@ -29,13 +29,11 @@
         Pokédex
       </button>
     </div>
-  </header>
-
-  <div class="status-bar">
-    <span id="statusText">Buscando…</span>
-    <div class="progress-block">
-      <div class="progress-label">
+    <div class="catch-badge">
+      <div class="catch-badge-top">
+        <span class="catch-icon" aria-hidden="true"></span>
         <span id="caughtCount">¡Llevas 0!</span>
+        <span id="caughtPercent" class="catch-percent">0%</span>
         <span id="caughtRatio">0 / 0</span>
       </div>
       <div
@@ -50,6 +48,10 @@
         <div id="caughtBar" class="progress-bar"></div>
       </div>
     </div>
+  </header>
+
+  <div class="status-bar">
+    <span id="statusText">Buscando…</span>
     <button class="btn-sm" id="retryBtn" type="button" hidden>Otra vez</button>
   </div>
 
@@ -199,6 +201,6 @@
     </div>
   </div>
 
-  <script type="module" src="js/main.js?v=14"></script>
+  <script type="module" src="js/main.js?v=16"></script>
 </body>
 </html>
