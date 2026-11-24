@@ -1,6 +1,6 @@
-import { warmSpanishVoices } from "./audio.js";
+import { warmSpanishVoices } from "./audio.js?v=6";
 import { showMap, initMap } from "./map.js?v=8";
-import { initPokedex, openPokemon } from "./pokedex.js?v=8";
+import { initPokedex, openPokemon } from "./pokedex.js?v=10";
 import { startWelcome } from "./welcome.js?v=8";
 
 const welcome = document.getElementById("welcome");

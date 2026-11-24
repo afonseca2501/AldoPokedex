@@ -7,6 +7,8 @@ let cryToken = 0;
 let speakTimer = 0;
 let speakAttempt = 0;
 let activeUtterance = null;
+let chimeContext = null;
+let chimeNodes = [];
 
 export function cryUrlList(id) {
   return [
@@ -38,15 +40,59 @@ function cancelSpeech() {
   if ("speechSynthesis" in window) window.speechSynthesis.cancel();
 }
 
+function stopCatchChime() {
+  chimeNodes.forEach((node) => {
+    try { node.stop(); } catch { /* el tono ya terminó */ }
+  });
+  chimeNodes = [];
+}
+
+function chimeAudio() {
+  const AudioContext = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContext) return null;
+  if (!chimeContext) chimeContext = new AudioContext();
+  return chimeContext;
+}
+
+export function primeCatchChime() {
+  const context = chimeAudio();
+  if (context && context.state === "suspended") context.resume();
+}
+
+export function playCatchChime() {
+  stopCatchChime();
+  const context = chimeAudio();
+  if (!context) return;
+  if (context.state === "suspended") context.resume();
+  const start = context.currentTime + 0.02;
+  [523.25, 659.25, 783.99].forEach((frequency, index) => {
+    const osc = context.createOscillator();
+    const gain = context.createGain();
+    const when = start + index * 0.11;
+    osc.type = "sine";
+    osc.frequency.value = frequency;
+    gain.gain.setValueAtTime(0.0001, when);
+    gain.gain.exponentialRampToValueAtTime(0.06, when + 0.03);
+    gain.gain.exponentialRampToValueAtTime(0.0001, when + 0.32);
+    osc.connect(gain);
+    gain.connect(context.destination);
+    osc.start(when);
+    osc.stop(when + 0.34);
+    chimeNodes.push(osc);
+  });
+}
+
 export function stopAllAudio() {
   cancelSpeech();
   stopCry();
+  stopCatchChime();
 }
 
 export function playCry(poke) {
   if (!poke) return;
   cancelSpeech();
   stopCry();
+  stopCatchChime();
   const token = cryToken;
   const urls = (poke.cryUrls && poke.cryUrls.length ? poke.cryUrls : cryUrlList(poke.id)).filter(Boolean);
   if (!urls.length) return;
@@ -98,6 +144,7 @@ function createUtterance(text, voice) {
 export function speakSpanish(text, isStillCurrent = () => true) {
   if (!text || !("speechSynthesis" in window)) return;
   stopCry();
+  stopCatchChime();
   window.clearTimeout(speakTimer);
   const synth = window.speechSynthesis;
   const attemptId = ++speakAttempt;

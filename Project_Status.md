@@ -29,6 +29,7 @@ AldoPokedex/
 - La cuadrícula pinta lotes de 36 tarjetas. Un centinela al final, observado con 600 px de margen inferior, pide el siguiente lote antes de llegar al fondo. Cada tarjeta solo carga su imagen (`loading="lazy"` y `decoding="async"`). La especie y la línea evolutiva se piden al abrir la ficha.
 - La cuadrícula, el mapa y las mini-cartas usan el arte oficial o el sprite frontal, imágenes estables para que el scroll siga ligero. En la ficha grande se intenta primero el sprite animado (Showdown de PokéAPI, luego la versión animada de Blanco y Negro y, si hay nombre, el GIF de Pokémon Showdown). Si no existe, tarda más de 2,5 s o falla, se queda el arte oficial y después el sprite frontal, sin un icono de imagen rota.
 - La barra se guarda en `localStorage` con la clave `pokemundo_caught`. El texto principal es «¡Llevas N!» y el total fino queda al lado.
+- «¡Atrapar!» abre una Pokébola en la parte baja del escenario. Se arrastra hacia arriba y, al soltar, vuela con giro hasta el Pokémon. Un toque corto en la bola o el botón «¡Lanzar!» también la envía, para que un tiro corto se pueda repetir. Al chocar hay un destello, el Pokémon entra en la bola, la bola tiembla y sale «¡Atrapado!» con estrellas y un tono suave. Ese tono no es el grito ni la lectura en español. Recién entonces se guarda la captura, sube la barra y se marca la tarjeta. Si ya estaba atrapado, el botón sigue preguntando antes de soltarlo.
 - Los tipos usan sus colores clásicos en tarjetas, ficha y línea evolutiva. Los botones de la ficha dicen «Escuchar» y «¡Atrapar!». La X de la ficha se queda visible al bajar.
 - El grito y un salto de reacción solo ocurren al tocar o hacer clic sobre el Pokémon dentro de la ficha. Abrir la tarjeta no reproduce sonido. «Escuchar» solo lee el texto en español.
 - La cabecera es azul profundo y eléctrico, con acentos naranja en la pestaña activa, el botón de explicación y la barra de capturados.
@@ -73,7 +74,7 @@ En Chrome, con el sitio abierto, usa el icono de instalar de la barra de direcci
 ## Qué probar primero
 
 1. Los seis clave salen al momento y luego el texto pasa a «Catálogo completo».
-2. Abre un Pokémon desde la lista: la ficha aparece en silencio y, si existe, el dibujo grande pasa al sprite animado. Si no existe, se queda la imagen oficial. Toca la imagen: suena el grito y el Pokémon da un salto. «Escuchar» solo lee en español. «¡Atrapar!» suma uno a «¡Llevas N!».
+2. Abre un Pokémon desde la lista: la ficha aparece en silencio y, si existe, el dibujo grande pasa al sprite animado. Si no existe, se queda la imagen oficial. Toca la imagen: suena el grito y el Pokémon da un salto. «Escuchar» solo lee en español. «¡Atrapar!» muestra la Pokébola: deslízala hacia arriba o pulsa «¡Lanzar!». Al acertar aparece «¡Atrapado!» y «¡Llevas N!» suma uno.
 3. Confirma el encabezado azul, el texto «¡Bienvenido, Aldo!» y la barra de capturados en naranja.
 4. Marca capturado y recarga: la barra y la marca siguen ahí.
 5. En Mapa Mundial toca un marcador: el mapa se acerca, ese Pokémon crece, y ves bandera, país y «Ver ficha», sin grito. Si ya lo atrapaste, el marcador lleva una pokébola.

@@ -13,7 +13,7 @@
   <link rel="icon" href="/icons/icon-192.png" type="image/png" />
   <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="css/styles.css?v=10" />
+  <link rel="stylesheet" href="css/styles.css?v=12" />
   <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body class="hello-open">
@@ -124,6 +124,14 @@
         aria-label="Reproducir el grito del Pokémon"
       >
         <img id="modalImg" alt="" width="135" height="135" />
+        <div id="throwLayer" class="throw-layer" hidden>
+          <p id="throwHint" class="throw-hint">¡Desliza hacia arriba!</p>
+          <button id="throwBall" class="throw-ball" type="button" aria-label="Arrastra la Pokébola hacia el Pokémon"></button>
+          <button id="throwQuick" class="throw-quick" type="button">¡Lanzar!</button>
+        </div>
+        <div id="catchBurst" class="catch-burst" hidden aria-live="polite">
+          <p class="catch-banner">¡Atrapado!</p>
+        </div>
       </div>
       <div class="hint">Toca al Pokémon para escuchar su grito</div>
 
@@ -159,6 +167,6 @@
     </div>
   </div>
 
-  <script type="module" src="js/main.js?v=9"></script>
+  <script type="module" src="js/main.js?v=11"></script>
 </body>
 </html>

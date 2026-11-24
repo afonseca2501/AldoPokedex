@@ -1,4 +1,4 @@
-import { cryUrlList, playCry, speakSpanish, stopAllAudio } from "./audio.js";
+import { cryUrlList, playCry, playCatchChime, primeCatchChime, speakSpanish, stopAllAudio } from "./audio.js?v=6";
 import { TYPE_ORDER, getType, paintTypeBadges, typeName, weaknessesOf } from "./types.js?v=5";
 
 const CAUGHT_KEY = "pokemundo_caught";
@@ -72,6 +72,15 @@ const modalBackdrop = document.getElementById("modalBackdrop");
 const speakBtn = document.getElementById("speakBtn");
 const catchBtn = document.getElementById("catchBtn");
 const pokeStage = document.getElementById("pokeStage");
+const throwLayer = document.getElementById("throwLayer");
+const throwHint = document.getElementById("throwHint");
+const throwBall = document.getElementById("throwBall");
+const throwQuick = document.getElementById("throwQuick");
+const catchBurst = document.getElementById("catchBurst");
+let catchMode = false;
+let catchLock = false;
+let catchToken = 0;
+let ballDrag = null;
 
 
 function idFromUrl(url) {
@@ -738,8 +747,8 @@ function refreshModal(poke) {
   document.getElementById("modalDesc").textContent = currentDesc(poke);
   fillBadges(document.getElementById("modalTypes"), poke.types);
   showWeaknesses(poke.types);
-  const reacting = pokeStage.classList.contains("react");
-  pokeStage.className = `${stageClass(poke.types)}${reacting ? " react" : ""}`;
+  const extras = ["react", "is-catching", "is-flash", "is-absorb"].filter((name) => pokeStage.classList.contains(name));
+  pokeStage.className = [stageClass(poke.types), ...extras].join(" ");
   const card = pokeGrid.querySelector(`.poke-card[data-id="${poke.id}"]`);
   if (!card) return;
   const types = card.querySelector(".poke-types");
@@ -771,6 +780,7 @@ function ensureEntry(id) {
 export function openPokemon(id) {
   const poke = ensureEntry(id);
   if (!poke) return;
+  cancelCatch();
   currentPoke = poke;
   const token = ++modalToken;
 
@@ -801,6 +811,7 @@ export function openPokemon(id) {
 }
 
 function closeModal() {
+  cancelCatch();
   stopAllAudio();
   modalBackdrop.classList.remove("open");
 }
@@ -921,14 +932,230 @@ async function loadCatalog() {
   }
 }
 
+function waitCatch(ms, token) {
+  return new Promise((resolve) => {
+    window.setTimeout(() => resolve(token === catchToken), ms);
+  });
+}
+
+function restBall() {
+  throwBall.classList.remove("is-shaking");
+  throwBall.style.visibility = "";
+  throwQuick.hidden = false;
+  throwBall.style.left = "50%";
+  throwBall.style.top = "auto";
+  throwBall.style.bottom = "58px";
+  throwBall.style.transform = "translateX(-50%)";
+}
+
+function setThrowHint(text) {
+  throwHint.hidden = !text;
+  throwHint.textContent = text;
+}
+
+function clearStars() {
+  catchBurst.querySelectorAll(".catch-star").forEach((star) => star.remove());
+}
+
+function showStars() {
+  clearStars();
+  const colors = ["#f97316", "#fde68a", "#ffffff", "#93c5fd", "#22c55e"];
+  for (let index = 0; index < 14; index += 1) {
+    const star = document.createElement("span");
+    const angle = (index / 14) * Math.PI * 2;
+    star.className = "catch-star";
+    star.style.background = colors[index % colors.length];
+    star.style.setProperty("--x", `${Math.cos(angle) * 108}px`);
+    star.style.setProperty("--y", `${Math.sin(angle) * 78}px`);
+    catchBurst.append(star);
+  }
+  catchBurst.hidden = false;
+}
+
+function cancelCatch() {
+  catchToken += 1;
+  catchMode = false;
+  catchLock = false;
+  ballDrag = null;
+  pokeStage.classList.remove("is-catching", "is-flash", "is-absorb");
+  throwLayer.hidden = true;
+  catchBurst.hidden = true;
+  throwQuick.disabled = false;
+  clearStars();
+  restBall();
+  setThrowHint("¡Desliza hacia arriba!");
+}
+
+function beginCatchMode() {
+  catchMode = true;
+  pokeStage.classList.add("is-catching");
+  throwLayer.hidden = false;
+  catchBurst.hidden = true;
+  throwQuick.disabled = false;
+  restBall();
+  setThrowHint("¡Desliza hacia arriba!");
+  pokeStage.scrollIntoView({ block: "center", behavior: "smooth" });
+}
+
+function commitCatch(poke) {
+  if (!poke || caught.has(poke.id)) return;
+  caught.add(poke.id);
+  updateCaughtCounter();
+  markCaughtTag(poke.id);
+  catchBtn.textContent = "¡Atrapado!";
+  catchBtn.classList.remove("caught-pop");
+  void catchBtn.offsetWidth;
+  catchBtn.classList.add("caught-pop");
+  if (visibleChain) renderEvolution(visibleChain, poke, false);
+}
+
+function finishCatchUi() {
+  catchMode = false;
+  catchLock = false;
+  throwLayer.hidden = true;
+  catchBurst.hidden = true;
+  throwQuick.disabled = false;
+  pokeStage.classList.remove("is-catching", "is-flash", "is-absorb");
+  clearStars();
+  restBall();
+}
+
+async function startCaptureSequence(token) {
+  const poke = currentPoke;
+  throwQuick.disabled = true;
+  setThrowHint("");
+  pokeStage.classList.add("is-flash");
+  if (!(await waitCatch(280, token))) return;
+  pokeStage.classList.remove("is-flash");
+  pokeStage.classList.add("is-absorb");
+  if (!(await waitCatch(420, token))) return;
+  throwBall.style.transform = "none";
+  throwBall.classList.add("is-shaking");
+  if (!(await waitCatch(980, token))) return;
+  if (token !== catchToken || currentPoke !== poke) return;
+  throwBall.classList.remove("is-shaking");
+  throwBall.style.visibility = "hidden";
+  pokeStage.classList.remove("is-absorb");
+  showStars();
+  playCatchChime();
+  commitCatch(poke);
+  if (!(await waitCatch(1400, token))) return;
+  finishCatchUi();
+}
+
+function launchThrow() {
+  if (!catchMode || catchLock || !currentPoke) return;
+  catchLock = true;
+  throwQuick.hidden = true;
+  setThrowHint("");
+  primeCatchChime();
+  const token = catchToken;
+  const stageBox = throwLayer.getBoundingClientRect();
+  const ballBox = throwBall.getBoundingClientRect();
+  const imageBox = document.getElementById("modalImg").getBoundingClientRect();
+  const startX = ballBox.left - stageBox.left;
+  const startY = ballBox.top - stageBox.top;
+  const endX = imageBox.left - stageBox.left + imageBox.width / 2 - ballBox.width / 2;
+  const endY = imageBox.top - stageBox.top + imageBox.height / 2 - ballBox.height / 2;
+  const travel = Math.hypot(endX - startX, endY - startY);
+  const duration = Math.max(320, Math.min(720, travel * 1.35));
+  const arc = Math.max(40, Math.min(120, travel * 0.38));
+  const started = performance.now();
+  throwBall.style.bottom = "auto";
+  const step = (now) => {
+    if (token !== catchToken) return;
+    const progress = Math.min(1, (now - started) / duration);
+    const ease = 1 - (1 - progress) ** 2;
+    const x = startX + (endX - startX) * ease;
+    const y = startY + (endY - startY) * ease - Math.sin(Math.PI * progress) * arc;
+    throwBall.style.left = `${x}px`;
+    throwBall.style.top = `${y}px`;
+    throwBall.style.transform = `rotate(${progress * 640}deg)`;
+    if (progress < 1) requestAnimationFrame(step);
+    else startCaptureSequence(token);
+  };
+  requestAnimationFrame(step);
+}
+
+function releaseBall(event) {
+  if (!ballDrag || event.pointerId !== ballDrag.id) return;
+  const dx = event.clientX - ballDrag.x;
+  const dy = event.clientY - ballDrag.y;
+  const speed = ballDrag.vy;
+  const distance = Math.hypot(dx, dy);
+  ballDrag = null;
+  if (distance < 16 || -dy > 56 || speed < -0.4) {
+    launchThrow();
+    return;
+  }
+  restBall();
+  setThrowHint("¡Un poco más arriba!");
+}
+
+function moveBall(event) {
+  if (!ballDrag || event.pointerId !== ballDrag.id || catchLock) return;
+  const now = performance.now();
+  const dt = Math.max(now - ballDrag.time, 8);
+  ballDrag.vy = (event.clientY - ballDrag.lastY) / dt;
+  ballDrag.lastY = event.clientY;
+  ballDrag.time = now;
+  const dx = event.clientX - ballDrag.x;
+  const dy = event.clientY - ballDrag.y;
+  throwBall.style.bottom = "auto";
+  throwBall.style.left = `${ballDrag.originX + dx}px`;
+  throwBall.style.top = `${ballDrag.originY + dy}px`;
+  throwBall.style.transform = `rotate(${dx * 0.35}deg)`;
+}
+
 export function initPokedex() {
-  pokeStage.addEventListener("click", () => {
+  pokeStage.addEventListener("click", (event) => {
+    if (catchLock || event.target.closest("#throwBall, #throwQuick, #catchBurst")) return;
     if (currentPoke) playCryFor(currentPoke);
   });
   pokeStage.addEventListener("keydown", (event) => {
+    if (event.target !== pokeStage) return;
     if (event.key !== "Enter" && event.key !== " ") return;
     event.preventDefault();
+    if (catchMode || catchLock) return;
     if (currentPoke) playCryFor(currentPoke);
+  });
+
+  throwBall.addEventListener("pointerdown", (event) => {
+    if (!catchMode || catchLock) return;
+    event.preventDefault();
+    event.stopPropagation();
+    const stageBox = throwLayer.getBoundingClientRect();
+    const ballBox = throwBall.getBoundingClientRect();
+    ballDrag = {
+      id: event.pointerId,
+      x: event.clientX,
+      y: event.clientY,
+      lastY: event.clientY,
+      time: performance.now(),
+      vy: 0,
+      originX: ballBox.left - stageBox.left,
+      originY: ballBox.top - stageBox.top,
+    };
+    try { throwBall.setPointerCapture(event.pointerId); } catch { /* el arrastre sigue con los eventos de la ventana */ }
+  });
+  throwBall.addEventListener("pointermove", moveBall);
+  throwBall.addEventListener("pointerup", releaseBall);
+  throwBall.addEventListener("pointercancel", (event) => {
+    if (!ballDrag || event.pointerId !== ballDrag.id) return;
+    ballDrag = null;
+    if (!catchLock) restBall();
+  });
+  window.addEventListener("pointermove", moveBall);
+  window.addEventListener("pointerup", releaseBall);
+  throwBall.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    event.preventDefault();
+    event.stopPropagation();
+    launchThrow();
+  });
+  throwQuick.addEventListener("click", (event) => {
+    event.stopPropagation();
+    launchThrow();
   });
 
   speakBtn.addEventListener("click", () => {
@@ -948,24 +1175,22 @@ export function initPokedex() {
   });
 
   catchBtn.addEventListener("click", () => {
-    if (!currentPoke) return;
-    const already = caught.has(currentPoke.id);
-    if (already) {
+    if (!currentPoke || catchLock) return;
+    if (caught.has(currentPoke.id)) {
       const name = titleName(currentPoke.name);
       if (!window.confirm(`¿Soltar a ${name}?`)) return;
       caught.delete(currentPoke.id);
-    } else {
-      caught.add(currentPoke.id);
+      updateCaughtCounter();
+      markCaughtTag(currentPoke.id);
+      catchBtn.textContent = "¡Atrapar!";
+      if (visibleChain) renderEvolution(visibleChain, currentPoke, false);
+      return;
     }
-    updateCaughtCounter();
-    markCaughtTag(currentPoke.id);
-    catchBtn.textContent = caught.has(currentPoke.id) ? "¡Atrapado!" : "¡Atrapar!";
-    if (!already) {
-      catchBtn.classList.remove("caught-pop");
-      void catchBtn.offsetWidth;
-      catchBtn.classList.add("caught-pop");
+    if (catchMode) {
+      launchThrow();
+      return;
     }
-    if (visibleChain) renderEvolution(visibleChain, currentPoke, false);
+    beginCatchMode();
   });
 
   document.getElementById("closeModal").addEventListener("click", closeModal);
