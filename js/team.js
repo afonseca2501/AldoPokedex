@@ -1,4 +1,4 @@
-import { playCry, stopAllAudio } from "./audio.js?v=7";
+import { playCry, stopAllAudio } from "./audio.js?v=10";
 import {
   attachAnimatedSprite,
   caughtIds,
@@ -9,7 +9,7 @@ import {
   openPokemon,
   setStableSprite,
   titleName,
-} from "./pokedex.js?v=17";
+} from "./pokedex.js?v=20";
 import { getType, paintTypeBadges } from "./types.js?v=5";
 
 const PARTNER_KEY = "pokemundo_partner";
@@ -70,6 +70,7 @@ const FOOD_GLYPH = {
   shake: "🥤",
 };
 const ALDO_SOURCES = [
+  "assets/images/Aldo2.webp",
   "Aldo2.webp",
   "images/Aldo2.webp",
   "public/Aldo2.webp",

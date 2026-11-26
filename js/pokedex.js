@@ -1,4 +1,4 @@
-import { cryUrlList, playCry, playCatchChime, primeCatchChime, speakSpanish, stopAllAudio } from "./audio.js?v=7";
+import { cryUrlList, playCry, playCatchChime, primeCatchChime, speakSpanish, stopAllAudio } from "./audio.js?v=10";
 import { TYPE_ORDER, getType, paintTypeBadges, typeName, weaknessesOf } from "./types.js?v=5";
 
 const CAUGHT_KEY = "pokemundo_caught";

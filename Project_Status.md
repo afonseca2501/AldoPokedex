@@ -7,22 +7,29 @@ Estado: base modular lista para seguir agregando funciones.
 ```text
 AldoPokedex/
 ├── index.html
-├── manifest.json     # app instalable, ventana sin barra del navegador
-├── sw.js             # no guarda copias viejas de la app
-├── icons/            # íconos PNG de la Pokébola
-├── image_aldo.webp
-├── Aldo2.webp        # Aldo recortado, a la derecha de Mis Pokémon
+├── manifest.json       # app instalable, ventana sin barra del navegador
+├── sw.js               # no guarda copias viejas de la app
+├── package.json
+├── vercel.json         # salida de build: dist
+├── Project_Status.md
+├── .cursorrules
+├── assets/
+│   ├── icons/          # íconos PNG de la Pokébola
+│   └── images/
+│       ├── image_aldo.webp
+│       └── Aldo2.webp  # Aldo recortado, a la derecha de Mis Pokémon
 ├── css/
 │   └── styles.css
 ├── js/
-│   ├── main.js       # pestañas y arranque
-│   ├── pokedex.js    # catálogo, búsqueda, filtros, capturas y ficha
-│   ├── team.js       # colección, Pokémon principal y comida
-│   ├── audio.js      # grito del Pokémon y lectura en español, separados
-│   ├── welcome.js    # saludo de Aldo y precarga de sprites
-│   └── map.js        # mapa Leaflet, capas, hábitats y radar
-├── Project_Status.md
-└── .cursorrules
+│   ├── main.js         # pestañas y arranque
+│   ├── pokedex.js      # catálogo, búsqueda, filtros, capturas y ficha
+│   ├── team.js         # colección, equipo de 3 y comida
+│   ├── audio.js        # grito del Pokémon y lectura en español, separados
+│   ├── welcome.js      # saludo de Aldo y precarga de sprites
+│   ├── map.js          # mapa Leaflet, capas, hábitats y radar
+│   └── types.js        # nombres, colores e íconos de tipos
+└── scripts/
+    └── build.mjs       # genera dist/ y no se edita a mano
 ```
 
 ## Comportamiento que se conserva
@@ -31,7 +38,7 @@ AldoPokedex/
 - La cuadrícula pinta lotes de 36 tarjetas. Un centinela al final, observado con 600 px de margen inferior, pide el siguiente lote antes de llegar al fondo. Cada tarjeta solo carga su imagen (`loading="lazy"` y `decoding="async"`). La especie y la línea evolutiva se piden al abrir la ficha.
 - La cuadrícula, el mapa y las mini-cartas usan el arte oficial o el sprite frontal, imágenes estables para que el scroll siga ligero. En la ficha grande se intenta primero el sprite animado (Showdown de PokéAPI, luego la versión animada de Blanco y Negro y, si hay nombre, el GIF de Pokémon Showdown). Si no existe, tarda más de 2,5 s o falla, se queda el arte oficial y después el sprite frontal, sin un icono de imagen rota.
 - La barra se guarda en `localStorage` con la clave `pokemundo_caught`. La insignia de la cabecera muestra «¡Llevas N!», el porcentaje, `N / total` y una barra gruesa. Como está dentro de la cabecera fija, sigue visible al bajar por la Pokédex.
-- La pestaña «Mis Pokémon» lista los capturados. El equipo de 3 se guarda en `pokemundo_team` (`slots` y `focus`). Si no existe, arranca con `pokemundo_partner` y completa los huecos con los capturados de número más bajo. Si se suelta uno, su espacio lo ocupa otro atrapado. En el bloque solo hay una fila de 3 columnas con esos Pokémon, sin un dibujo repetido debajo. Debajo van el nombre, los tipos, el Nivel, las barras y el menú, más `Aldo2.webp` a la derecha, sin cortarse (`calc(100dvh - 256px)`). Tocar otro espacio lo pone a comer, en silencio. El grito sale solo al tocar el dibujo del que ya come. La comida se arrastra con el dedo (`pointer` y `touch-action: none`): sigue el dedo, el destino se ilumina al acercarse y, si se suelta lejos, vuelve a su sitio. Un toque corto también alimenta. En Tu colección, «Sumar» llena un hueco, «Cambiar» reemplaza al que come si el equipo está lleno, «En equipo» y «Come ahora» solo cambian el foco. «Este» alimenta al enfocado; «El equipo» alimenta a los tres. El cuadro toma el color del tipo principal del que come y un segundo brillo de otro tipo del equipo; el texto sigue claro. Aldo se balancea unos segundos al abrir la pestaña y salta al comer, sin sonido. El menú sigue con Baya, Fruta, Verdura, Galleta, Snack, Jugo, Agua y Batido. Cada toque sube las barras, siempre en positivo, y guarda el nivel en `pokemundo_care`. «Ver ficha» abre la ficha en silencio. Si no hay capturas, hay botones a la Pokédex y al Mapa.
+- La pestaña «Mis Pokémon» lista los capturados. El equipo de 3 se guarda en `pokemundo_team` (`slots` y `focus`). Si no existe, arranca con `pokemundo_partner` y completa los huecos con los capturados de número más bajo. Si se suelta uno, su espacio lo ocupa otro atrapado. En el bloque solo hay una fila de 3 columnas con esos Pokémon, sin un dibujo repetido debajo. Debajo van el nombre, los tipos, el Nivel, las barras y el menú, más `assets/images/Aldo2.webp` a la derecha, sin cortarse (`calc(100dvh - 256px)`). Tocar otro espacio lo pone a comer, en silencio. El grito sale solo al tocar el dibujo del que ya come. La comida se arrastra con el dedo (`pointer` y `touch-action: none`): sigue el dedo, el destino se ilumina al acercarse y, si se suelta lejos, vuelve a su sitio. Un toque corto también alimenta. En Tu colección, «Sumar» llena un hueco, «Cambiar» reemplaza al que come si el equipo está lleno, «En equipo» y «Come ahora» solo cambian el foco. «Este» alimenta al enfocado; «El equipo» alimenta a los tres. El cuadro toma el color del tipo principal del que come y un segundo brillo de otro tipo del equipo; el texto sigue claro. Aldo se balancea unos segundos al abrir la pestaña y salta al comer, sin sonido. El menú sigue con Baya, Fruta, Verdura, Galleta, Snack, Jugo, Agua y Batido. Cada toque sube las barras, siempre en positivo, y guarda el nivel en `pokemundo_care`. «Ver ficha» abre la ficha en silencio. Si no hay capturas, hay botones a la Pokédex y al Mapa.
 - En la ficha hay tres Pokébolas que giran: la clásica roja, la Super Ball azul y roja, y la Ultra Ball negra y amarilla. Al tocar una, esa bola queda abajo del escenario. Se arrastra hacia arriba o se pulsa «¡Lanzar!». Al chocar hay un destello, el Pokémon entra en la bola, la bola tiembla y sale «¡Atrapado!» con estrellas y un tono suave. Ese tono no es el grito ni la lectura en español. Recién entonces se guarda la captura, sube la barra y se marca la tarjeta. Si ya estaba atrapado, «Soltar» pregunta dentro de la ficha, con «Soltar» y «Cancelar». Al confirmar, el aviso dice que regresó a su hábitat, sin el cuadro del navegador ni un sonido extra.
 - Los tipos usan sus colores clásicos en tarjetas, ficha y línea evolutiva. La ficha tiene «Escuchar» y el selector de Pokébolas. La X de la ficha se queda visible.
 - El grito y un salto de reacción solo ocurren al tocar o hacer clic sobre el Pokémon dentro de la ficha. El archivo es el `.ogg` de PokeAPI/cries: primero `latest/{id}.ogg` y, si ese no existe o no se puede reproducir, `legacy/{id}.ogg`. Si faltan los dos, o el número no es válido, no suena nada y la ficha sigue usable. Abrir la tarjeta no reproduce sonido. «Escuchar» solo lee el texto en español y no lanza el grito.
@@ -59,7 +66,7 @@ AldoPokedex/
 ## App instalable
 
 - `manifest.json` se llama AldoPokedex, abre en `standalone` desde `/` y usa azul `#1d4ed8` con fondo `#0f172a`.
-- Los íconos PNG están en `icons/`: 192, 512, una versión con margen para máscara y el de iOS.
+- Los íconos PNG están en `assets/icons/`: 192, 512, una versión con margen para máscara y el de iOS. El saludo usa `assets/images/image_aldo.webp`.
 - `sw.js` no guarda `index.html`, `css` ni `js`. PokéAPI, los mapas y el audio siguen yendo a la red.
 
 ## Arrancar en local
