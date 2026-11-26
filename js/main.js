@@ -1,16 +1,24 @@
 import { warmSpanishVoices } from "./audio.js?v=10";
-import { showMap, initMap } from "./map.js?v=10";
-import { initPokedex, openPokemon } from "./pokedex.js?v=20";
-import { greetAldo, initTeam, refreshTeam } from "./team.js?v=11";
-import { startWelcome } from "./welcome.js?v=10";
+import { showAdventure } from "./adventure.js?v=5";
+import { showMap, initMap } from "./map.js?v=11";
+import { initPokedex, openPokemon } from "./pokedex.js?v=21";
+import { greetAldo, initTeam, refreshTeam } from "./team.js?v=12";
+import { startWelcome } from "./welcome.js?v=11";
 
 const welcome = document.getElementById("welcome");
+const ADVENTURE_READY = false;
+
+function openView(viewName) {
+  if (!ADVENTURE_READY && viewName === "adventureView") return "dexView";
+  return viewName;
+}
 
 function hideWelcome() {
   welcome?.classList.add("is-gone");
 }
 
 function activateView(viewName) {
+  viewName = openView(viewName);
   hideWelcome();
   document.querySelectorAll(".tab-btn").forEach((tab) => {
     const active = tab.dataset.view === viewName;
@@ -21,6 +29,7 @@ function activateView(viewName) {
     view.classList.toggle("active", view.id === viewName);
   });
   if (viewName === "mapView") showMap();
+  if (ADVENTURE_READY && viewName === "adventureView") showAdventure();
   if (viewName === "teamView") {
     refreshTeam();
     greetAldo();
@@ -32,6 +41,7 @@ warmSpanishVoices();
 initPokedex();
 initMap();
 initTeam({ showView: activateView });
+if (ADVENTURE_READY) showAdventure();
 startWelcome();
 if (document.getElementById("mapView").classList.contains("active")) showMap();
 window.setTimeout(hideWelcome, 2200);

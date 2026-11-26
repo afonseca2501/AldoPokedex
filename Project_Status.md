@@ -27,6 +27,7 @@ AldoPokedex/
 │   ├── audio.js        # grito del Pokémon y lectura en español, separados
 │   ├── welcome.js      # saludo de Aldo y precarga de sprites
 │   ├── map.js          # mapa Leaflet, capas, hábitats y radar
+│   ├── adventure.js    # claro de prueba: Aldo o Enzo, cofre y captura
 │   └── types.js        # nombres, colores e íconos de tipos
 └── scripts/
     └── build.mjs       # genera dist/ y no se edita a mano
@@ -48,6 +49,7 @@ AldoPokedex/
 - Desde 768 px la ficha mide como máximo `min(920px, 84vw)` de ancho y `min(640px, 82dvh)` de alto, sin scroll. Detrás hay un velo oscuro semitransparente, con un desenfoque leve, y la ficha lleva una sombra fuerte para flotar sobre la cuadrícula, que sigue viéndose. La columna izquierda va centrada en este orden: número naranja, nombre grande, Tipo, descripción, línea evolutiva y Débil contra. Debajo siguen «Escuchar» y las Pokébolas. A la derecha queda el escenario. La descripción se ve en dos líneas; el texto completo sigue en la ficha para «Escuchar».
 - En celular (hasta 767 px) no hay desborde horizontal. Las pestañas se apilan en ícono y texto, la cuadrícula de la Pokédex va en dos columnas anchas y los controles del mapa ocupan todo el ancho. La ficha usa la pantalla completa: la X naranja se queda arriba, el contenido baja con scroll y «Escuchar» con las Pokébolas quedan fijos abajo. Mis Pokémon apila el equipo y a Aldo en una columna; el menú de comida pasa a dos columnas grandes. El grito y la lectura no cambian.
 - Leaflet recalcula el tamaño al cambiar de pestaña, al redimensionar la ventana y si cambia el contenedor.
+- La pestaña «Aventura» está oculta mientras se construye (`ADVENTURE_READY` en `js/main.js` y el botón con `hidden`). El resto de la app no la muestra. Para volver a enseñarla, pon `ADVENTURE_READY` en `true` y quita `hidden` del botón. El claro vive en `js/adventure.js`. Se elige `1. Aldo` o `2. Enzo` (`pokemundo_hero`) y un entorno de prueba: Bosque, Playa, Volcán, Cueva, Nieve o Parque. El equipo de 3 de Mis Pokémon sigue al personaje con un poco de retraso. Hay árboles, rocas y arbustos sólidos: ni el personaje ni el equipo los atraviesan; si se toca encima o detrás, caminan hasta el suelo libre y rodean el obstáculo. Tres cofres guardan la Baya Dorada, la Linterna y la Flauta. Cada Pokémon del claro pide uno. El objeto se arrastra hasta él o se toca. Al completar sale «¡Atrapado!» sin grito ni lectura, se guarda en `pokemundo_caught` y sube «¡Llevas N!». El progreso queda en `pokemundo_adventure`. Mientras no exista el `.webp`, se ve una figura con su nombre. Para sustituirla, se deja el archivo en `assets/adventure/` con el nombre de la tabla de abajo.
 
 ## Línea evolutiva
 
@@ -97,3 +99,17 @@ En Chrome, con el sitio abierto, usa el icono de instalar de la barra de direcci
 10. La X de la ficha se ve grande y naranja. En el mapa, la X del popup, Radar Salvaje y el selector de capa también se distinguen al tocarlos.
 11. En una ventana ancha, la ficha es más pequeña que la pantalla. El fondo se oscurece un poco y la ficha flota con sombra, pero se sigue viendo la Pokédex. A la izquierda están el nombre, Tipo, Débil contra, la descripción y la evolución. A la derecha, el Pokémon. Las tres Pokébolas giran; al tocar una se puede lanzar. No hay scroll dentro de la ficha.
 12. En una ventana de celular (menos de 768 px de ancho) no aparece una barra horizontal. La ficha ocupa la pantalla, se puede bajar por la descripción y la X y «Escuchar» siguen a la vista. En Mis Pokémon, Aldo queda debajo del equipo y se llega a la colección bajando. En el mapa, el selector de capa y Radar Salvaje se pueden tocar con el dedo.
+13. Mientras Aventura está en construcción, esa pestaña no aparece. Cuando se vuelva a mostrar: abre «Aventura». Elige `2. Enzo` y recarga: sigue Enzo, con la figura «Enzo» si no hay dibujo. Vuelve a `1. Aldo`. Cambia a Playa o Volcán: cambia el suelo y siguen los obstáculos. Toca un árbol: el personaje se acerca y se detiene en el borde, y el equipo tampoco entra. Toca detrás de una roca: lo rodea. Camina a un cofre: entra la Baya Dorada, la Linterna o la Flauta. Arrástrala a quien la pide, o tócala. Sale «¡Atrapado!», «¡Llevas N!» suma uno y el Pokémon aparece en Mis Pokémon. Abrir una ficha sigue en silencio; el grito solo suena al tocar su dibujo.
+
+## Dibujos de Aventura para reemplazar
+
+Pon el archivo en `assets/adventure/` y recarga. Sirve `.webp` o `.png` con el mismo nombre.
+
+| Qué | Archivo |
+| --- | --- |
+| Aldo | `aldo.webp` |
+| Enzo | `enzo.webp` |
+| Bosque, Playa, Volcán, Cueva, Nieve, Parque | `bosque.webp`, `playa.webp`, `volcan.webp`, `cueva.webp`, `nieve.webp`, `parque.webp` |
+| Cofre | `cofre.webp` |
+| Baya Dorada, Linterna, Flauta | `baya-dorada.webp`, `linterna.webp`, `flauta.webp` |
+| Árbol, Roca, Arbusto | `arbol.webp`, `roca.webp`, `arbusto.webp` |

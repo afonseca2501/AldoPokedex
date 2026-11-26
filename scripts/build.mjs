@@ -14,6 +14,7 @@ const files = [
   "js/main.js",
   "js/welcome.js",
   "js/team.js",
+  "js/adventure.js",
   "sw.js",
 ];
 

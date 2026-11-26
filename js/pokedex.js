@@ -1110,12 +1110,18 @@ function beginCatchMode() {
   setThrowHint("¡Desliza hacia arriba!");
 }
 
-function commitCatch(poke) {
-  if (!poke || caught.has(poke.id)) return;
-  caught.add(poke.id);
+export function markCaught(id) {
+  const numeric = Number(id);
+  if (!Number.isInteger(numeric) || numeric <= 0 || caught.has(numeric)) return false;
+  caught.add(numeric);
   updateCaughtCounter();
-  markCaughtTag(poke.id);
-  syncCatchControls();
+  markCaughtTag(numeric);
+  if (currentPoke && currentPoke.id === numeric) syncCatchControls();
+  return true;
+}
+
+function commitCatch(poke) {
+  if (!markCaught(poke?.id)) return;
   if (visibleChain) renderEvolution(visibleChain, poke, false);
 }
 

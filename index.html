@@ -13,7 +13,7 @@
   <link rel="icon" href="/assets/icons/icon-192.png" type="image/png" />
   <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="css/styles.css?v=33" />
+  <link rel="stylesheet" href="css/styles.css?v=36" />
   <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body class="hello-open">
@@ -31,6 +31,10 @@
       <button class="tab-btn" type="button" data-view="teamView" role="tab" aria-selected="false">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="m12 2.8 2.5 5.5 6 .6-4.5 4 1.3 6L12 16.2 6.7 18.9l1.3-6-4.5-4 6-.6L12 2.8z"/></svg>
         <span>Mis Pokémon</span>
+      </button>
+      <button class="tab-btn" type="button" data-view="adventureView" role="tab" aria-selected="false" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" d="M4 17c3.2-1 3.2-4 6.4-4s3.2 3 6.4 2 3.4-3.2 3.2-5"/><circle cx="7" cy="7.2" r="2.3" fill="currentColor"/></svg>
+        <span>Aventura</span>
       </button>
     </div>
     <div class="catch-badge">
@@ -204,6 +208,35 @@
         <div id="teamGrid" class="team-grid"></div>
       </div>
     </section>
+
+    <section id="adventureView" class="view">
+      <div class="adv-bar">
+        <p class="adv-kicker">¿Quién explora?</p>
+        <div class="hero-pick" role="group" aria-label="Elige quién explora">
+          <button class="hero-btn is-on" type="button" data-hero="aldo" aria-pressed="true">1. Aldo</button>
+          <button class="hero-btn" type="button" data-hero="enzo" aria-pressed="false">2. Enzo</button>
+        </div>
+        <p id="advStatus" class="adv-status" role="status">Toca el claro para caminar.</p>
+        <div id="advZones" class="adv-zones" role="group" aria-label="Entorno de prueba"></div>
+      </div>
+      <div id="advField" class="adv-field" data-zone="bosque" aria-label="Claro de la aventura">
+        <div id="advBlocks" class="adv-layer"></div>
+        <div id="advActors" class="adv-actors"></div>
+        <div id="advParty" class="adv-party"></div>
+        <div id="advHero" class="adv-hero">
+          <img id="advHeroImg" alt="" width="96" height="96" />
+          <span id="advHeroMark" class="ph-figure" hidden>Aldo</span>
+        </div>
+        <div id="advBurst" class="adv-burst" hidden>
+          <p id="advBurstText">¡Atrapado!</p>
+        </div>
+      </div>
+      <div class="adv-bag">
+        <p class="adv-kicker">Bolsa</p>
+        <div id="advBagItems" class="adv-bag-items"></div>
+        <p id="advBagEmpty" class="adv-bag-empty">Los cofres esconden la Baya Dorada, la Linterna y la Flauta.</p>
+      </div>
+    </section>
   </main>
 
   <div id="modalBackdrop" class="modal-backdrop">
@@ -299,6 +332,6 @@
     </div>
   </div>
 
-  <script type="module" src="js/main.js?v=29"></script>
+  <script type="module" src="js/main.js?v=35"></script>
 </body>
 </html>
