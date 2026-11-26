@@ -1,5 +1,5 @@
 import { warmSpanishVoices } from "./audio.js?v=10";
-import { showMap, initMap } from "./map.js?v=9";
+import { showMap, initMap } from "./map.js?v=10";
 import { initPokedex, openPokemon } from "./pokedex.js?v=20";
 import { greetAldo, initTeam, refreshTeam } from "./team.js?v=11";
 import { startWelcome } from "./welcome.js?v=10";

@@ -168,6 +168,14 @@ function focusMarker(marker) {
   mapInstance.flyTo(marker.getLatLng(), zoom, { duration: 0.45 });
 }
 
+function popupOptions(open) {
+  const options = open ? { autoClose: false } : {};
+  if (window.matchMedia("(max-width: 767px)").matches) {
+    options.maxWidth = Math.max(220, Math.min(300, window.innerWidth - 40));
+  }
+  return Object.keys(options).length ? options : undefined;
+}
+
 function addSighting(spot, pokemonName, buttonLabel, radar = false, open = false) {
   const marker = L.marker([spot.lat, spot.lng], {
     icon: pokemonIcon(spot.pokeId, pokemonName, radar),
@@ -179,7 +187,7 @@ function addSighting(spot, pokemonName, buttonLabel, radar = false, open = false
   marker.on("click", () => focusMarker(marker));
   marker.addTo(mapInstance).bindPopup(
     sightingMarkup(spot, pokemonName, buttonLabel),
-    open ? { autoClose: false } : undefined
+    popupOptions(open)
   );
   if (open) {
     marker.openPopup();

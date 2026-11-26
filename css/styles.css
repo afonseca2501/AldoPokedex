@@ -81,15 +81,6 @@ header {
   box-shadow: 0 4px 0 #c2410c;
 }
 .tab-btn:active { transform: translateY(2px); }
-@media (max-width: 640px) {
-  .tab-btn {
-    flex-direction: column;
-    gap: 2px;
-    min-height: 72px;
-    padding: 6px 4px;
-  }
-  .tab-btn svg { width: 26px; height: 26px; }
-}
 
 .catch-badge {
   display: flex;
@@ -638,7 +629,7 @@ main { max-width: 1200px; margin: 0 auto; padding: 20px; }
 .food-btn[data-food="juice"] { background: #1d4ed8; color: #fff7ed; }
 .food-btn[data-food="water"] { background: #1e3a8a; color: #fff7ed; }
 .food-btn[data-food="shake"] { background: #082f49; color: #fff7ed; border-color: #93c5fd; }
-@media (max-height: 860px) {
+@media (max-height: 860px) and (min-width: 768px) {
   .buddy-hint { display: none; }
   .buddy-stage { min-height: 52px; max-height: 96px; }
   .food-note { display: none; }
@@ -1799,4 +1790,171 @@ input:focus, select:focus, button:focus-visible {
 .hello-go:active {
   transform: translateY(2px);
   box-shadow: 0 1px 0 #c2410c;
+}
+
+@media (max-width: 767px) {
+  html, body { max-width: 100%; overflow-x: hidden; }
+  body:has(.modal-backdrop.open) { overflow: hidden; }
+
+  header { padding: 8px 10px 10px; }
+  .tabs { gap: 6px; }
+  .tab-btn {
+    flex-direction: column;
+    gap: 2px;
+    min-height: 64px;
+    padding: 6px 4px;
+    font-size: 0.82rem;
+  }
+  .tab-btn svg { width: 26px; height: 26px; }
+
+  .catch-badge { padding: 8px 10px 10px; }
+  #caughtCount { font-size: 1.15rem; min-width: 0; }
+  #caughtRatio { font-size: 0.92rem; }
+
+  main { padding: 12px 10px 32px; }
+
+  .controls,
+  .map-toolbar,
+  .map-actions,
+  .layer-select {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+  }
+  input,
+  select,
+  .layer-select select {
+    width: 100%;
+    min-width: 0;
+    min-height: 48px;
+    font-size: 1rem;
+  }
+  #radarBtn,
+  .radar-banner button {
+    width: 100%;
+    min-height: 48px;
+  }
+  .radar-banner {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .radar-banner .sighting-copy { min-width: 0; }
+  .radar-banner button { margin-left: 0; }
+  .sighting { min-width: 0; max-width: 100%; }
+  .leaflet-popup { max-width: calc(100vw - 24px); }
+  .leaflet-popup-content {
+    width: auto !important;
+    max-width: calc(100vw - 64px);
+    margin: 12px 12px 10px;
+    padding-right: 28px;
+  }
+
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .poke-card { padding: 10px 8px; }
+  .poke-card img { width: 84px; height: 84px; }
+  .poke-name { font-size: 1rem; }
+
+  #map {
+    height: min(68dvh, 480px);
+    min-height: 260px;
+  }
+
+  .buddy-panel {
+    height: auto;
+    max-height: none;
+    overflow: visible;
+  }
+  .buddy-split {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+  .buddy-card,
+  .aldo-figure { height: auto; }
+  .aldo-figure {
+    min-height: 220px;
+    max-height: none;
+  }
+  .aldo-figure img {
+    width: min(240px, 72vw);
+    height: auto;
+    max-height: 320px;
+  }
+  .food-head {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+  .feed-who { width: 100%; }
+  .who-btn {
+    flex: 1;
+    min-height: 48px;
+    font-size: 0.95rem;
+  }
+  .food-row { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .food-btn { min-height: 56px; font-size: 0.95rem; }
+  .food-note { font-size: 0.78rem; }
+  .squad-slot { min-height: 112px; }
+  .slot-pic { height: 88px; }
+  .team-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+  .modal-backdrop {
+    align-items: stretch;
+    justify-content: flex-start;
+    padding: 0;
+    overflow: hidden;
+  }
+  .modal {
+    width: 100%;
+    max-width: 100%;
+    height: 100dvh;
+    max-height: 100dvh;
+    border-radius: 0;
+    overflow: hidden;
+    padding: 8px 12px 0;
+  }
+  .close-btn {
+    position: relative;
+    top: auto;
+    right: auto;
+    align-self: flex-end;
+    flex: none;
+    margin: 0 0 6px auto;
+  }
+  .modal-layout {
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 210px;
+  }
+  .modal-stage-col { flex: none; }
+  .stage,
+  .stage.is-catching {
+    height: 220px;
+    min-height: 200px;
+    max-height: none;
+    flex: none;
+  }
+  .stage img {
+    width: 168px;
+    height: 168px;
+  }
+  .desc {
+    display: block;
+    overflow: visible;
+    -webkit-line-clamp: unset;
+  }
+  .modal-backdrop.open .actions {
+    position: fixed;
+    left: 10px;
+    right: 10px;
+    bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+    z-index: 1002;
+    width: auto;
+    background: #1e293b;
+    border: 2px solid rgba(249, 115, 22, 0.85);
+    border-radius: 16px;
+    padding: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  }
+  .evo-track { max-width: 100%; }
 }
