@@ -90,16 +90,21 @@ const throwTriesStars = document.getElementById("throwTriesStars");
 const throwBall = document.getElementById("throwBall");
 const throwQuick = document.getElementById("throwQuick");
 const catchBurst = document.getElementById("catchBurst");
+const escapeCard = document.getElementById("escapeCard");
+const escapeTitle = document.getElementById("escapeTitle");
+const escapeRetry = document.getElementById("escapeRetry");
 let catchMode = false;
 let catchLock = false;
 let catchToken = 0;
 let ballDrag = null;
 const ATTEMPT_MAX = 5;
+const ESCAPE_MERCY = 2;
 const sessionGoals = new Map();
 let throwProgress = 0;
 let throwGoal = 1;
 let goalReady = false;
 let goalFrozen = false;
+let escapesThisEncounter = 0;
 
 
 function idFromUrl(url) {
@@ -725,6 +730,29 @@ function resetEncounter() {
   throwGoal = 1;
   goalReady = false;
   goalFrozen = false;
+  escapesThisEncounter = 0;
+}
+
+function stageDepth(poke) {
+  const stages = stagesFor(poke);
+  if (!stages?.length) return throwGoal > 1 ? 1 : 0;
+  const stage = stages.find((item) => item.id === currentStageId(poke, stages));
+  return stage ? stage.depth : 0;
+}
+
+function escapeChance(poke) {
+  if (escapesThisEncounter >= ESCAPE_MERCY) return 0;
+  const depth = stageDepth(poke);
+  const wouldFinish = throwProgress + 1 >= throwGoal;
+  let chance = 0.22;
+  if (depth >= 1 && !wouldFinish) chance = 0.34;
+  else if (depth >= 1) chance = 0.18;
+  if (depth >= 2) chance += 0.06;
+  return Math.min(0.4, chance);
+}
+
+function willEscape(poke) {
+  return Math.random() < escapeChance(poke);
 }
 
 async function ensureGoal(poke, token) {
@@ -1175,6 +1203,8 @@ function cancelCatch() {
   restBall();
   throwBall.classList.remove("is-back");
   setThrowHint("¡Desliza hacia arriba!");
+  hideEscapeCard();
+  pokeStage.classList.remove("is-slip");
   paintTries();
 }
 
@@ -1318,10 +1348,44 @@ async function resolveThrow(token) {
     paintTries();
   }
   goalFrozen = true;
+  if (willEscape(poke)) {
+    startEscape(token, poke);
+    return;
+  }
   throwProgress += 1;
   paintTries();
   if (throwProgress >= throwGoal) startCaptureSequence(token);
   else startNearMiss(token);
+}
+
+function showEscapeCard(poke) {
+  const name = titleName(poke?.name);
+  escapeTitle.textContent = `¡${name} se escapó! Vuelve a atraparlo`;
+  escapeCard.hidden = false;
+}
+
+function hideEscapeCard() {
+  escapeCard.hidden = true;
+}
+
+async function startEscape(token, poke) {
+  escapesThisEncounter += 1;
+  throwProgress = 0;
+  paintTries();
+  throwQuick.disabled = true;
+  throwBall.classList.remove("is-flying");
+  throwBall.classList.add("is-shaking");
+  pokeStage.classList.add("is-slip");
+  setThrowHint("");
+  if (!(await waitCatch(460, token))) return;
+  if (token !== catchToken || currentPoke !== poke) return;
+  throwBall.classList.remove("is-shaking");
+  pokeStage.classList.remove("is-slip");
+  restBall();
+  catchLock = false;
+  throwQuick.disabled = false;
+  setThrowHint("¡Desliza hacia arriba!");
+  showEscapeCard(poke);
 }
 
 async function startNearMiss(token) {
@@ -1427,6 +1491,13 @@ export function initPokedex() {
   throwQuick.addEventListener("click", (event) => {
     event.stopPropagation();
     launchThrow();
+  });
+  escapeRetry.addEventListener("click", () => {
+    hideEscapeCard();
+    if (catchMode && !catchLock) {
+      restBall();
+      setThrowHint("¡Desliza hacia arriba!");
+    }
   });
 
   speakBtn.addEventListener("click", () => {

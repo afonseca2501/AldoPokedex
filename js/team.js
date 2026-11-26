@@ -9,7 +9,7 @@ import {
   openPokemon,
   setStableSprite,
   titleName,
-} from "./pokedex.js?v=22";
+} from "./pokedex.js?v=23";
 import { getType, paintTypeBadges } from "./types.js?v=5";
 
 const PARTNER_KEY = "pokemundo_partner";

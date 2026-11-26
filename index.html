@@ -13,11 +13,20 @@
   <link rel="icon" href="/assets/icons/icon-192.png" type="image/png" />
   <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="css/styles.css?v=37" />
+  <link rel="stylesheet" href="css/styles.css?v=44" />
+  <script>
+    try {
+      if (sessionStorage.getItem("pokemundo_bar") === "up") {
+        document.documentElement.classList.add("bar-up");
+      }
+    } catch (error) { /* si el navegador bloquea la sesión, la barra empieza abierta */ }
+  </script>
   <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body class="hello-open">
-  <header>
+  <div class="top-shell">
+  <div class="top-clip">
+  <header id="appHeader">
     <p class="welcome" id="welcome">¡Hola, Aldo!</p>
     <div class="tabs" role="tablist">
       <button class="tab-btn" type="button" data-view="mapView" role="tab" aria-selected="false">
@@ -56,7 +65,17 @@
         <div id="caughtBar" class="progress-bar"></div>
       </div>
     </div>
+    <button id="hideBar" class="bar-hide" type="button" aria-controls="appHeader" aria-expanded="true" aria-label="Ocultar menú">
+      <span class="bar-chevron" aria-hidden="true">⌃</span>
+    </button>
   </header>
+  </div>
+  </div>
+  <button id="showBar" class="bar-show" type="button" aria-controls="appHeader" aria-expanded="false">
+    <span class="bar-ball" aria-hidden="true"></span>
+    <span>Ver barra</span>
+    <span class="bar-arrow" aria-hidden="true">↓</span>
+  </button>
 
   <div class="status-bar">
     <span id="statusText">Buscando…</span>
@@ -316,6 +335,12 @@
           <div class="hint">Toca al Pokémon para escuchar su grito</div>
         </div>
       </div>
+      <div id="escapeCard" class="escape-card" hidden role="dialog" aria-modal="true" aria-labelledby="escapeTitle">
+        <div class="escape-sheet">
+          <p id="escapeTitle" class="escape-title">¡Se escapó! Vuelve a atraparlo</p>
+          <button id="escapeRetry" class="escape-retry" type="button">Volver a atrapar</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -336,6 +361,6 @@
     </div>
   </div>
 
-  <script type="module" src="js/main.js?v=37"></script>
+  <script type="module" src="js/main.js?v=40"></script>
 </body>
 </html>
