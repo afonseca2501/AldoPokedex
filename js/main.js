@@ -124,6 +124,7 @@ function beginBarDrag(event, role) {
     lastX: event.clientX,
     lastY: event.clientY,
     role,
+    fromHandle: Boolean(event.target.closest("#hideBar")),
   };
   try { event.currentTarget.setPointerCapture(event.pointerId); } catch (error) { /* el dedo sigue con los eventos de la ventana */ }
 }
@@ -142,7 +143,11 @@ function finishBarDrag(event) {
   const dx = barDrag.lastX - barDrag.x;
   const dy = barDrag.lastY - barDrag.y;
   const role = barDrag.role;
+  const fromHandle = barDrag.fromHandle;
   barDrag = null;
+  const tap = event.type !== "pointercancel" && Math.hypot(dx, dy) <= 10;
+  if (tap && role === "show") { suppressBarClick(); setBarUp(false); return; }
+  if (tap && fromHandle) { suppressBarClick(); setBarUp(true); return; }
   if (Math.abs(dy) < BAR_SWIPE || Math.abs(dy) <= Math.abs(dx)) return;
   if (role === "header" && dy < 0) { suppressBarClick(); setBarUp(true); }
   if (role === "show" && dy > 0) { suppressBarClick(); setBarUp(false); }
