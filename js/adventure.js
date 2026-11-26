@@ -13,7 +13,7 @@ import {
   onCaughtChange,
   spriteUrl,
   titleName,
-} from "./pokedex.js?v=21";
+} from "./pokedex.js?v=22";
 
 const HERO_KEY = "pokemundo_hero";
 const STATE_KEY = "pokemundo_adventure";

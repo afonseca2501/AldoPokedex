@@ -1,9 +1,9 @@
 import { warmSpanishVoices } from "./audio.js?v=10";
-import { showAdventure } from "./adventure.js?v=5";
-import { showMap, initMap } from "./map.js?v=11";
-import { initPokedex, openPokemon } from "./pokedex.js?v=21";
-import { greetAldo, initTeam, refreshTeam } from "./team.js?v=13";
-import { startWelcome } from "./welcome.js?v=11";
+import { showAdventure } from "./adventure.js?v=6";
+import { showMap, initMap } from "./map.js?v=12";
+import { initPokedex, openPokemon } from "./pokedex.js?v=22";
+import { greetAldo, initTeam, refreshTeam } from "./team.js?v=14";
+import { startWelcome } from "./welcome.js?v=12";
 
 const welcome = document.getElementById("welcome");
 const ADVENTURE_READY = false;

@@ -84,6 +84,9 @@ let selectedBall = "poke";
 const pokeStage = document.getElementById("pokeStage");
 const throwLayer = document.getElementById("throwLayer");
 const throwHint = document.getElementById("throwHint");
+const throwTries = document.getElementById("throwTries");
+const throwTriesText = document.getElementById("throwTriesText");
+const throwTriesStars = document.getElementById("throwTriesStars");
 const throwBall = document.getElementById("throwBall");
 const throwQuick = document.getElementById("throwQuick");
 const catchBurst = document.getElementById("catchBurst");
@@ -91,6 +94,12 @@ let catchMode = false;
 let catchLock = false;
 let catchToken = 0;
 let ballDrag = null;
+const ATTEMPT_MAX = 5;
+const sessionGoals = new Map();
+let throwProgress = 0;
+let throwGoal = 1;
+let goalReady = false;
+let goalFrozen = false;
 
 
 function idFromUrl(url) {
@@ -679,6 +688,77 @@ function currentStageId(poke, stages) {
   return poke.id;
 }
 
+function randomInt(min, max) {
+  const low = Math.ceil(min);
+  const high = Math.floor(max);
+  return Math.floor(Math.random() * (high - low + 1)) + low;
+}
+
+function stagesFor(poke) {
+  if (!poke) return null;
+  return (poke.evolutionChainUrl && chainCache.get(poke.evolutionChainUrl))
+    || chainBySpecies.get(poke.id)
+    || (poke.speciesId ? chainBySpecies.get(poke.speciesId) : null)
+    || null;
+}
+
+function goalFromStages(poke, stages) {
+  const stage = stages.find((item) => item.id === currentStageId(poke, stages));
+  const depth = stage ? stage.depth : 0;
+  if (depth <= 0) return 1;
+  // Las evoluciones (2.ª etapa en adelante) sortean entre 2 y 5. El máximo es 5.
+  return randomInt(2, ATTEMPT_MAX);
+}
+
+function knownGoal(poke) {
+  if (!poke) return null;
+  if (sessionGoals.has(poke.id)) return sessionGoals.get(poke.id);
+  const stages = stagesFor(poke);
+  if (!stages?.length) return null;
+  const goal = goalFromStages(poke, stages);
+  sessionGoals.set(poke.id, goal);
+  return goal;
+}
+
+function resetEncounter() {
+  throwProgress = 0;
+  throwGoal = 1;
+  goalReady = false;
+  goalFrozen = false;
+}
+
+async function ensureGoal(poke, token) {
+  const ready = knownGoal(poke);
+  if (ready != null) {
+    throwGoal = ready;
+    goalReady = true;
+    return ready;
+  }
+  await ensureProfile(poke);
+  if (token !== catchToken || currentPoke !== poke) return null;
+  if (poke.evolutionChainUrl) await loadChain(poke.evolutionChainUrl);
+  if (token !== catchToken || currentPoke !== poke) return null;
+  const settled = knownGoal(poke);
+  if (settled != null) {
+    throwGoal = settled;
+    goalReady = true;
+    return settled;
+  }
+  sessionGoals.set(poke.id, 1);
+  throwGoal = 1;
+  goalReady = true;
+  return 1;
+}
+
+function applyKnownGoal(poke) {
+  if (!poke || goalFrozen) return;
+  const ready = knownGoal(poke);
+  if (ready == null) return;
+  throwGoal = ready;
+  goalReady = true;
+  paintTries();
+}
+
 function createEvoCard(stage, isCurrent) {
   const button = document.createElement("button");
   button.type = "button";
@@ -859,6 +939,7 @@ export function openPokemon(id) {
     const stages = await loadChain(poke.evolutionChainUrl);
     if (token !== modalToken) return;
     renderEvolution(stages, poke, true);
+    applyKnownGoal(poke);
   });
 }
 
@@ -1029,9 +1110,36 @@ function restBall() {
   paintBall();
 }
 
-function setThrowHint(text) {
+function setThrowHint(text, near = false) {
   throwHint.hidden = !text;
   throwHint.textContent = text;
+  throwHint.classList.toggle("is-near", Boolean(text) && near);
+}
+
+function paintTries() {
+  if (!throwTries) return;
+  if (!catchMode) {
+    throwTries.hidden = true;
+    return;
+  }
+  throwTries.hidden = false;
+  if (!goalReady) {
+    throwTriesText.textContent = "Preparando intento…";
+    throwTriesStars.replaceChildren();
+    throwTries.setAttribute("aria-label", "Preparando intento");
+    return;
+  }
+  const goal = Math.max(1, Math.min(ATTEMPT_MAX, throwGoal));
+  const done = Math.min(throwProgress, goal);
+  throwTriesText.textContent = `Intento ${done} / ${goal}`;
+  throwTries.setAttribute("aria-label", `Intento ${done} de ${goal}`);
+  throwTriesStars.replaceChildren();
+  for (let index = 0; index < goal; index += 1) {
+    const star = document.createElement("span");
+    star.className = index < done ? "try-star is-on" : "try-star";
+    star.textContent = index < done ? "★" : "☆";
+    throwTriesStars.append(star);
+  }
 }
 
 function clearStars() {
@@ -1058,13 +1166,16 @@ function cancelCatch() {
   catchMode = false;
   catchLock = false;
   ballDrag = null;
+  resetEncounter();
   pokeStage.classList.remove("is-catching", "is-flash", "is-absorb");
   throwLayer.hidden = true;
   catchBurst.hidden = true;
   throwQuick.disabled = false;
   clearStars();
   restBall();
+  throwBall.classList.remove("is-back");
   setThrowHint("¡Desliza hacia arriba!");
+  paintTries();
 }
 
 function selectBall(kind) {
@@ -1107,7 +1218,9 @@ function beginCatchMode() {
   catchBurst.hidden = true;
   throwQuick.disabled = false;
   restBall();
-  setThrowHint("¡Desliza hacia arriba!");
+  applyKnownGoal(currentPoke);
+  setThrowHint(throwProgress > 0 ? "¡Casi! Inténtalo de nuevo" : "¡Desliza hacia arriba!", throwProgress > 0);
+  paintTries();
 }
 
 export function markCaught(id) {
@@ -1191,9 +1304,47 @@ function launchThrow() {
     throwBall.style.top = `${y}px`;
     throwBall.style.transform = `rotate(${progress * 640}deg)`;
     if (progress < 1) requestAnimationFrame(step);
-    else startCaptureSequence(token);
+    else resolveThrow(token);
   };
   requestAnimationFrame(step);
+}
+
+async function resolveThrow(token) {
+  const poke = currentPoke;
+  if (token !== catchToken || !poke) return;
+  if (!goalReady) {
+    const goal = await ensureGoal(poke, token);
+    if (goal == null || token !== catchToken || currentPoke !== poke) return;
+    paintTries();
+  }
+  goalFrozen = true;
+  throwProgress += 1;
+  paintTries();
+  if (throwProgress >= throwGoal) startCaptureSequence(token);
+  else startNearMiss(token);
+}
+
+async function startNearMiss(token) {
+  throwQuick.disabled = true;
+  throwBall.classList.remove("is-flying");
+  throwBall.classList.add("is-shaking");
+  setThrowHint("¡Casi! Inténtalo de nuevo", true);
+  if (!(await waitCatch(520, token))) return;
+  if (token !== catchToken) return;
+  const stageBox = throwLayer.getBoundingClientRect();
+  throwBall.classList.remove("is-shaking");
+  throwBall.classList.add("is-back");
+  throwBall.style.transform = "";
+  throwBall.style.left = `${stageBox.width / 2 - 32}px`;
+  throwBall.style.top = `${Math.max(8, stageBox.height - 116)}px`;
+  if (!(await waitCatch(280, token))) return;
+  if (token !== catchToken) return;
+  throwBall.classList.remove("is-back");
+  restBall();
+  catchLock = false;
+  throwQuick.disabled = false;
+  setThrowHint("¡Casi! Inténtalo de nuevo", true);
+  paintTries();
 }
 
 function releaseBall(event) {

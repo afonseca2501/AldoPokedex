@@ -13,7 +13,7 @@
   <link rel="icon" href="/assets/icons/icon-192.png" type="image/png" />
   <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="css/styles.css?v=36" />
+  <link rel="stylesheet" href="css/styles.css?v=37" />
   <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body class="hello-open">
@@ -302,6 +302,10 @@
             <img id="modalImg" alt="" width="135" height="135" />
             <div id="throwLayer" class="throw-layer" hidden>
               <p id="throwHint" class="throw-hint">¡Desliza hacia arriba!</p>
+              <p id="throwTries" class="throw-tries" hidden>
+                <span id="throwTriesText">Intento 0 / 1</span>
+                <span id="throwTriesStars" class="throw-stars" aria-hidden="true"></span>
+              </p>
               <button id="throwBall" class="throw-ball ball-poke" type="button" aria-label="Arrastra la Pokébola hacia el Pokémon"></button>
               <button id="throwQuick" class="throw-quick" type="button">¡Lanzar!</button>
             </div>
@@ -332,6 +336,6 @@
     </div>
   </div>
 
-  <script type="module" src="js/main.js?v=36"></script>
+  <script type="module" src="js/main.js?v=37"></script>
 </body>
 </html>
