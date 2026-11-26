@@ -2,7 +2,7 @@ import { warmSpanishVoices } from "./audio.js?v=10";
 import { showAdventure } from "./adventure.js?v=5";
 import { showMap, initMap } from "./map.js?v=11";
 import { initPokedex, openPokemon } from "./pokedex.js?v=21";
-import { greetAldo, initTeam, refreshTeam } from "./team.js?v=12";
+import { greetAldo, initTeam, refreshTeam } from "./team.js?v=13";
 import { startWelcome } from "./welcome.js?v=11";
 
 const welcome = document.getElementById("welcome");

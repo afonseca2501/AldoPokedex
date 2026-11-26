@@ -199,18 +199,20 @@ function paintMeter(bar, track, value, max) {
 
 function paintCare(id, animate) {
   const state = careFor(id);
-  careLevel.textContent = `Nivel ${state.level}`;
-  if (!animate) {
-    energyBar.style.transition = "none";
-    levelBar.style.transition = "none";
-  }
-  paintMeter(energyBar, energyTrack, state.energy, ENERGY_MAX);
-  paintMeter(levelBar, levelTrack, state.progress, LEVEL_GOAL);
-  if (!animate) {
-    requestAnimationFrame(() => {
-      energyBar.style.transition = "";
-      levelBar.style.transition = "";
-    });
+  if (squad[focusSlot] === id) {
+    careLevel.textContent = `Nivel ${state.level}`;
+    if (!animate) {
+      energyBar.style.transition = "none";
+      levelBar.style.transition = "none";
+    }
+    paintMeter(energyBar, energyTrack, state.energy, ENERGY_MAX);
+    paintMeter(levelBar, levelTrack, state.progress, LEVEL_GOAL);
+    if (!animate) {
+      requestAnimationFrame(() => {
+        energyBar.style.transition = "";
+        levelBar.style.transition = "";
+      });
+    }
   }
   const chip = teamGrid.querySelector(`.team-card[data-id="${id}"] .team-level`);
   if (chip) chip.textContent = `Nivel ${state.level}`;
@@ -404,19 +406,23 @@ function playBuddyCry(index = focusSlot) {
   playCry(poke);
 }
 
-function spawnBits(food) {
-  const fx = squadBox.querySelector(".squad-slot.is-focus .slot-fx");
-  if (!fx) return;
-  fx.replaceChildren();
+function spawnBits(food, seats) {
+  const boxes = (seats || [])
+    .map((seat) => squadBox.querySelector(`[data-slot="${seat}"] .slot-fx`))
+    .filter(Boolean);
+  const spots = boxes.length ? boxes : [squadBox.querySelector(".squad-slot.is-focus .slot-fx")].filter(Boolean);
   const glyph = FOOD_GLYPH[food] || "✨";
-  for (let index = 0; index < 8; index += 1) {
-    const bit = document.createElement("span");
-    bit.className = "buddy-bit";
-    bit.textContent = index % 3 === 2 ? "✨" : glyph;
-    bit.style.setProperty("--dx", `${(index - 3.5) * 18}px`);
-    bit.style.animationDelay = `${index * 35}ms`;
-    fx.append(bit);
-  }
+  spots.forEach((fx) => {
+    fx.replaceChildren();
+    for (let index = 0; index < 8; index += 1) {
+      const bit = document.createElement("span");
+      bit.className = "buddy-bit";
+      bit.textContent = index % 3 === 2 ? "✨" : glyph;
+      bit.style.setProperty("--dx", `${(index - 3.5) * 18}px`);
+      bit.style.animationDelay = `${index * 35}ms`;
+      fx.append(bit);
+    }
+  });
 }
 
 function growCare(id, food) {
@@ -436,9 +442,10 @@ function growCare(id, food) {
 }
 
 // La comida no reproduce el grito ni lee la explicación. El grito solo sale al tocar el escenario.
-function serveFood(food) {
+function serveFood(food, slotIndex = null) {
   const gift = FOODS[food];
-  const members = (feedAll ? squad.filter(Boolean) : [squad[focusSlot]]).filter(Boolean);
+  const chosen = Number.isInteger(slotIndex) && squad[slotIndex] ? [squad[slotIndex]] : null;
+  const members = (chosen || (feedAll ? squad.filter(Boolean) : [squad[focusSlot]])).filter(Boolean);
   if (!gift || !members.length || teamBody.hidden) return;
   stopAllAudio();
   const fed = members.map((id) => ({ id, ...growCare(id, food) }));
@@ -462,7 +469,7 @@ function serveFood(food) {
     slot.classList.add("is-yum");
     if (row.leveled) slot.classList.add("is-levelup");
   });
-  spawnBits(food);
+  spawnBits(food, fed.map((row) => squad.indexOf(row.id)).filter((seat) => seat >= 0));
   window.clearTimeout(feedTimer);
   feedTimer = window.setTimeout(() => {
     feedMessage.hidden = true;
@@ -519,11 +526,8 @@ function assignFromCollection(id) {
 
 let foodDrag = null;
 
-function foodTargets() {
-  const filled = [...squadBox.querySelectorAll(".squad-slot:not(.is-empty)")];
-  if (feedAll) return filled;
-  const focus = squadBox.querySelector(".squad-slot.is-focus");
-  return focus ? [focus] : [];
+function filledSlots() {
+  return [...squadBox.querySelectorAll(".squad-slot:not(.is-empty)")];
 }
 
 function slotNear(slot, x, y) {
@@ -532,8 +536,20 @@ function slotNear(slot, x, y) {
   return x >= rect.left - pad && x <= rect.right + pad && y >= rect.top - pad && y <= rect.bottom + pad;
 }
 
+function nearestSlot(x, y) {
+  let best = null;
+  filledSlots().forEach((slot) => {
+    if (!slotNear(slot, x, y)) return;
+    const rect = slot.getBoundingClientRect();
+    const dist = Math.hypot(x - (rect.left + rect.width / 2), y - (rect.top + rect.height / 2));
+    if (!best || dist < best.dist) best = { slot, dist };
+  });
+  return best ? best.slot : null;
+}
+
 function markDrop(x, y) {
-  foodTargets().forEach((slot) => slot.classList.toggle("is-drop", slotNear(slot, x, y)));
+  const target = nearestSlot(x, y);
+  filledSlots().forEach((slot) => slot.classList.toggle("is-drop", slot === target));
 }
 
 function clearDrop() {
@@ -601,10 +617,16 @@ function onFoodMove(event) {
 function onFoodUp(event) {
   if (!foodDrag || event.pointerId !== foodDrag.id) return;
   const drag = foodDrag;
-  const hit = drag.moved && [...squadBox.querySelectorAll(".squad-slot.is-drop")].length > 0;
-  if (!drag.moved || hit) {
+  const target = drag.moved ? nearestSlot(event.clientX, event.clientY) : null;
+  if (!drag.moved) {
     endDrag(false);
     serveFood(drag.food);
+    return;
+  }
+  if (target) {
+    const seat = Number(target.dataset.slot);
+    endDrag(false);
+    serveFood(drag.food, seat);
     return;
   }
   endDrag(true);
@@ -652,9 +674,9 @@ export function initTeam({ showView: openView }) {
   });
   const foodRow = document.querySelector(".food-row");
   foodRow.addEventListener("pointerdown", onFoodDown);
-  foodRow.addEventListener("pointermove", onFoodMove);
-  foodRow.addEventListener("pointerup", onFoodUp);
-  foodRow.addEventListener("pointercancel", onFoodCancel);
+  window.addEventListener("pointermove", onFoodMove);
+  window.addEventListener("pointerup", onFoodUp);
+  window.addEventListener("pointercancel", onFoodCancel);
   teamGrid.addEventListener("click", (event) => {
     const card = event.target.closest(".team-card");
     if (!card) return;
